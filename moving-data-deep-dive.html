@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moving & Managing Data — Deep Dive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-display:'Fraunces',Georgia,serif; --font-body:'IBM Plex Sans',system-ui,sans-serif; --font-mono:'IBM Plex Mono','SF Mono',Consolas,monospace;
+    --bg:#f5f1e8; --surface:#fffdf7; --surface2:#efe9da; --surface-elevated:#fffefb;
+    --border:rgba(30,40,60,0.10); --border-bright:rgba(30,40,60,0.20); --text:#20283a; --text-dim:#5f6b80;
+    --accent:#1e3a5f; --accent-dim:rgba(30,58,95,0.08); --gold:#9a6b15; --gold-dim:rgba(154,107,21,0.11);
+    --green:#4d7c2f; --green-dim:rgba(77,124,47,0.12); --red:#b3401f; --red-dim:rgba(179,64,31,0.10); --teal:#0e7490; --teal-dim:rgba(14,116,137,0.10);
+  }
+  @media (prefers-color-scheme: dark){ :root{
+    --bg:#12161d; --surface:#1a1f29; --surface2:#222937; --surface-elevated:#1f2733;
+    --border:rgba(255,255,255,0.08); --border-bright:rgba(255,255,255,0.17); --text:#e9e6dd; --text-dim:#9aa3b4;
+    --accent:#7aa7d6; --accent-dim:rgba(122,167,214,0.14); --gold:#d9af52; --gold-dim:rgba(217,175,82,0.14);
+    --green:#93c167; --green-dim:rgba(147,193,103,0.15); --red:#e08a63; --red-dim:rgba(224,138,99,0.14); --teal:#4cc4d6; --teal-dim:rgba(76,196,214,0.14);
+  }}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{ background:var(--bg); background-image:radial-gradient(ellipse at 12% 0%,var(--accent-dim) 0%,transparent 45%),radial-gradient(ellipse at 88% 6%,var(--gold-dim) 0%,transparent 40%); background-attachment:fixed;
+    color:var(--text); font-family:var(--font-body); font-size:15.5px; line-height:1.68; padding:48px 24px 80px; -webkit-font-smoothing:antialiased; overflow-wrap:break-word; }
+  .wrap{ max-width:880px; margin:0 auto; }
+  @keyframes fadeUp{ from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:translateY(0);} }
+  .a{ animation:fadeUp .45s ease-out both; animation-delay:calc(var(--i,0)*.05s); }
+  @media (prefers-reduced-motion: reduce){ *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important;} }
+
+  .home{ display:inline-block; font-family:var(--font-mono); font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--text-dim); text-decoration:none; margin-bottom:26px; padding:6px 12px; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
+  .home:hover{ color:var(--text); border-color:var(--border-bright); }
+  .kicker{ font-family:var(--font-mono); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:2.5px; color:var(--gold); margin-bottom:12px; }
+  h1{ font-family:var(--font-display); font-size:clamp(32px,5vw,50px); font-weight:500; line-height:1.04; letter-spacing:-0.5px; }
+  h1 em{ font-style:italic; color:var(--accent); }
+  .lede{ font-size:18px; color:var(--text-dim); margin-top:14px; max-width:62ch; }
+
+  .sec-head{ display:flex; align-items:center; gap:14px; margin:50px 0 16px; }
+  .sec-num{ font-family:var(--font-mono); font-size:13px; font-weight:600; color:var(--gold); border:1px solid var(--border-bright); border-radius:9px; padding:7px 10px; flex-shrink:0; background:var(--surface); }
+  .sec-kicker{ font-family:var(--font-mono); font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1.6px; color:var(--text-dim); margin-bottom:2px; }
+  .sec-head h2{ font-family:var(--font-display); font-size:27px; font-weight:500; line-height:1.1; letter-spacing:-0.3px; }
+  p{ margin:0 0 15px; } p strong{ color:var(--text); font-weight:600; }
+  .dim{ color:var(--text-dim); }
+  .big{ font-size:17px; }
+
+  /* decision flow */
+  .qcard{ background:var(--accent); color:#fff; border-radius:14px; padding:20px 24px; text-align:center; box-shadow:0 6px 20px rgba(0,0,0,0.12); }
+  @media (prefers-color-scheme: dark){ .qcard{ background:linear-gradient(135deg,var(--accent),#5687bf); color:#0d1117; } }
+  .qcard .ql{ font-family:var(--font-mono); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:2px; opacity:0.8; margin-bottom:6px; }
+  .qcard .qt{ font-family:var(--font-display); font-size:22px; font-weight:500; line-height:1.2; }
+  .branch-stem{ width:2px; height:22px; background:var(--border-bright); margin:0 auto; }
+  .branches{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .branch{ background:var(--surface-elevated); border:1px solid var(--border); border-top:3px solid var(--bc,var(--accent)); border-radius:12px; padding:16px 17px; box-shadow:0 2px 10px rgba(0,0,0,0.05); }
+  .branch .need{ font-family:var(--font-mono); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--bc,var(--accent)); margin-bottom:8px; }
+  .branch .q{ font-size:14px; font-weight:600; color:var(--text); margin-bottom:10px; line-height:1.35; }
+  .branch .svc{ font-family:var(--font-display); font-size:18px; font-weight:600; color:var(--bc,var(--accent)); }
+  .branch .why{ font-size:12.5px; color:var(--text-dim); margin-top:5px; line-height:1.45; }
+  @media (max-width:640px){ .branches{ grid-template-columns:1fr; } }
+
+  .callout{ padding:16px 20px; border-radius:10px; border-left:4px solid var(--cb,var(--accent)); background:var(--cbg,var(--accent-dim)); margin:18px 0; }
+  .callout--intuition{ --cb:var(--teal); --cbg:var(--teal-dim); } .callout--hook{ --cb:var(--gold); --cbg:var(--gold-dim); } .callout--trap{ --cb:var(--red); --cbg:var(--red-dim); }
+  .callout__t{ font-family:var(--font-mono); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:var(--cb,var(--accent)); margin-bottom:7px; }
+  .callout p{ margin:0; font-size:14.5px; } .callout p + p{ margin-top:8px; } .callout strong{ color:var(--text); font-weight:700; }
+
+  .table-wrap{ background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:16px 0; box-shadow:0 1px 6px rgba(0,0,0,0.03); }
+  .table-scroll{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  table.dt{ width:100%; border-collapse:collapse; font-size:13.5px; line-height:1.5; }
+  table.dt th{ background:var(--surface2); font-family:var(--font-mono); font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); text-align:left; padding:11px 15px; border-bottom:2px solid var(--border-bright); white-space:nowrap; }
+  table.dt td{ padding:12px 15px; border-bottom:1px solid var(--border); vertical-align:top; }
+  table.dt tbody tr:last-child td{ border-bottom:none; }
+  table.dt tbody tr:nth-child(even){ background:var(--accent-dim); }
+  table.dt .lead{ font-weight:600; color:var(--text); white-space:nowrap; }
+  table.dt td.num{ font-family:var(--font-mono); text-align:right; }
+  table.dt td.win{ color:var(--green); font-weight:600; } table.dt td.lose{ color:var(--red); font-weight:600; }
+  code{ font-family:var(--font-mono); font-size:0.85em; background:var(--accent-dim); color:var(--accent); padding:1px 6px; border-radius:4px; }
+
+  ul.clean{ list-style:none; margin:0 0 16px; } ul.clean li{ position:relative; padding-left:17px; margin-bottom:9px; }
+  ul.clean li::before{ content:'›'; position:absolute; left:0; color:var(--gold); font-weight:700; }
+  ul.clean strong{ color:var(--text); font-weight:700; }
+
+  .flow{ display:flex; align-items:stretch; gap:0; flex-wrap:wrap; margin:16px 0; }
+  .flow .box{ flex:1; min-width:130px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px; font-size:13px; }
+  .flow .box b{ display:block; font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--teal); margin-bottom:4px; }
+  .flow .arr{ display:flex; align-items:center; padding:0 8px; color:var(--border-bright); font-size:20px; }
+  @media (max-width:640px){ .flow .arr{ transform:rotate(90deg); padding:4px 0; width:100%; justify-content:center; } .flow .box{ min-width:100%; } }
+
+  hr.rule{ border:none; height:1px; background:var(--border); margin:34px 0 0; }
+  footer{ margin-top:24px; font-family:var(--font-mono); font-size:11px; color:var(--text-dim); opacity:0.65; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="home" href="index.html">&larr; Study home</a>
+
+  <div class="a" style="--i:0">
+    <div class="kicker">AWS CLF-C02 · Module 6 · deep dive</div>
+    <h1>Moving &amp; Managing <em>Data</em>, properly understood</h1>
+    <p class="lede">Forget memorizing names for a second. These three services exist because data has three completely different problems. Understand the problems and the services pick themselves.</p>
+  </div>
+
+  <!-- 1. THE ORGANIZING QUESTION -->
+  <div class="sec-head a" style="--i:1"><span class="sec-num">01</span><div><div class="sec-kicker">Start here</div><h2>One question organizes all three</h2></div></div>
+  <p>Everyone confuses these because they all "involve data and AWS." The trick is to stop thinking about the <em>services</em> and ask one question about your <strong>data</strong>:</p>
+
+  <div class="qcard a" style="--i:2">
+    <div class="ql">Ask this first</div>
+    <div class="qt">What do I actually need to <em>do</em> with this data?</div>
+  </div>
+  <div class="branch-stem"></div>
+  <div class="branches a" style="--i:3">
+    <div class="branch" style="--bc:var(--gold)">
+      <div class="need">Move it once</div>
+      <div class="q">"I have a huge pile of data sitting on-prem and I need it <em>in</em> AWS."</div>
+      <div class="svc">Snow Family</div>
+      <div class="why">A one-time bulk migration. The network is too slow, so you ship physical devices.</div>
+    </div>
+    <div class="branch" style="--bc:var(--teal)">
+      <div class="need">Keep using it</div>
+      <div class="q">"My on-prem app must keep running, but I want cloud storage behind it."</div>
+      <div class="svc">Storage Gateway</div>
+      <div class="why">An ongoing hybrid relationship. Local speed, cloud capacity, forever.</div>
+    </div>
+    <div class="branch" style="--bc:var(--green)">
+      <div class="need">Protect it</div>
+      <div class="q">"My data already lives in AWS — I need copies in case it's lost or attacked."</div>
+      <div class="svc">AWS Backup</div>
+      <div class="why">Scheduled, retained, recoverable copies. Insurance, not transport.</div>
+    </div>
+  </div>
+  <div class="callout callout--hook a" style="--i:4">
+    <div class="callout__t">The mental model</div>
+    <p><strong>Snow = a moving truck</strong> (one big trip). <strong>Storage Gateway = a delivery pipe</strong> between your house and a warehouse (always on). <strong>AWS Backup = an insurance policy</strong> (copies, kept safe, claimable). Different jobs — they're not alternatives to each other.</p>
+  </div>
+
+  <!-- 2. SNOW -->
+  <div class="sec-head a" style="--i:0"><span class="sec-num">02</span><div><div class="sec-kicker">Move it once</div><h2>Snow Family — and the problem of bandwidth</h2></div></div>
+  <p class="big">Here's the thing that makes Snow "obvious" once you feel it: <strong>moving big data over the internet is shockingly slow.</strong> Not because AWS is slow — because of physics and your connection.</p>
+  <p>Transfer time = <code>data size ÷ your upload speed</code>. Watch how ugly it gets as the data grows:</p>
+  <div class="table-wrap a" style="--i:1">
+    <div class="table-scroll">
+      <table class="dt">
+        <thead><tr><th>Data to move</th><th>Over 100 Mbps</th><th>Over 1 Gbps</th><th>Ship a Snowball?</th></tr></thead>
+        <tbody>
+          <tr><td class="lead">1 TB</td><td class="num">~1 day</td><td class="num">~2.5 hrs</td><td class="lose">No — just upload it</td></tr>
+          <tr><td class="lead">10 TB</td><td class="num">~12 days</td><td class="num">~1 day</td><td class="num dim">Maybe</td></tr>
+          <tr><td class="lead">80 TB</td><td class="num">~3 months</td><td class="num">~9 days</td><td class="win">Yes — ship it</td></tr>
+          <tr><td class="lead">1 PB</td><td class="num">~3 years</td><td class="num">~4 months</td><td class="win">Definitely</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="callout callout--intuition a" style="--i:2">
+    <div class="callout__t">The intuition (a 50-year-old truth)</div>
+    <p>"Never underestimate the bandwidth of a truck full of hard drives." A truck carrying 80 TB across the country in 2 days has an <em>effective</em> data rate that crushes most internet links. <strong>For huge data, a physical box is literally faster than fibre.</strong> That's the entire reason Snow exists.</p>
+  </div>
+  <p>So AWS ships you a rugged, encrypted device. You plug it in, copy your data on, ship it back, and AWS loads it straight into S3. Pick the device by how much you're moving:</p>
+  <div class="table-wrap a" style="--i:3">
+    <div class="table-scroll">
+      <table class="dt">
+        <thead><tr><th>Device</th><th>Holds</th><th>Picture it as</th><th>When</th></tr></thead>
+        <tbody>
+          <tr><td class="lead">Snowcone</td><td>~8–14 TB</td><td>A lunchbox</td><td>Small or edge transfers; rugged, portable.</td></tr>
+          <tr><td class="lead">Snowball Edge</td><td>~80 TB each</td><td>A suitcase</td><td>The workhorse — TBs to PBs (use several).</td></tr>
+          <tr><td class="lead">Snowmobile</td><td>up to 100 PB</td><td>A 45-ft truck</td><td>Moving an entire data center. Exabyte scale.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p><strong>Bonus — edge computing.</strong> Snow devices aren't just storage; they can run EC2 instances and Lambda <em>offline</em>. So a ship, an oil rig, or a war zone with no connectivity can collect and process data on a Snowball locally, then ship the device back. Same family, second use case.</p>
+  <p class="dim">All devices are encrypted (KMS), tamper-evident, and use an E-Ink shipping label that auto-updates for the return trip. Mnemonic for size: <strong>cone &lt; ball &lt; mobile.</strong></p>
+
+  <!-- 3. STORAGE GATEWAY -->
+  <div class="sec-head a" style="--i:0"><span class="sec-num">03</span><div><div class="sec-kicker">Keep using it</div><h2>Storage Gateway — the hybrid bridge</h2></div></div>
+  <p class="big">Snow is a one-time move. But what about a company that <strong>can't just leave on-prem</strong>? Their 10-year-old app expects a local file share or tape drive, rewriting it is off the table, but they're out of disk space and want cloud's bottomless storage.</p>
+  <p>Storage Gateway solves exactly this. A small <strong>gateway appliance</strong> (a VM or hardware box) sits in their data center. To the old app it looks like the same local storage it always used. Behind the scenes, it stores everything in AWS and keeps a <strong>local cache</strong> of the hot data so it still feels fast.</p>
+  <div class="callout callout--intuition a" style="--i:1">
+    <div class="callout__t">The analogy that makes it stick</div>
+    <p>Think of a <strong>mini-fridge in your kitchen</strong> stocked from a <strong>giant warehouse</strong> across town. You grab milk from the fridge instantly (the local cache). When the fridge runs low, it's restocked from the warehouse in the background (S3). You get warehouse-sized capacity with fridge-speed access — and you never had to move your kitchen.</p>
+  </div>
+  <p>The four "types" of Storage Gateway are just <strong>which kind of storage your old app expects to talk to</strong>:</p>
+  <ul class="clean a" style="--i:2">
+    <li><strong>S3 File Gateway</strong> — app wants a file share (NFS/SMB). Files land as objects in S3.</li>
+    <li><strong>FSx File Gateway</strong> — app wants a Windows file share. Backed by Amazon FSx.</li>
+    <li><strong>Tape Gateway</strong> — app backs up to <em>tape</em>. It presents a fake "virtual tape library," so the backup software is happy, but the tapes are really in S3 + Glacier. Kills the physical tape robot.</li>
+    <li><strong>Volume Gateway</strong> — app wants a raw disk (iSCSI block volume). Backed by S3 with EBS snapshots.</li>
+  </ul>
+  <div class="callout callout--hook a" style="--i:3">
+    <div class="callout__t">Cached vs Stored volumes (the one sub-detail)</div>
+    <p><strong>Cached</strong> = the real data lives in <em>AWS</em>, only hot bits are kept locally (minimal on-prem disk). <strong>Stored</strong> = the full data set stays <em>on-prem</em> (all of it, fast), and AWS just holds async backups. Cached = cloud is home; Stored = cloud is the safety copy.</p>
+  </div>
+
+  <!-- 4. AWS BACKUP -->
+  <div class="sec-head a" style="--i:0"><span class="sec-num">04</span><div><div class="sec-kicker">Protect it</div><h2>AWS Backup — one policy to protect everything</h2></div></div>
+  <p class="big">Now your data is already in AWS. Different problem entirely: <strong>what happens when someone deletes it, a disk dies, or ransomware hits?</strong> You need copies you can restore from.</p>
+  <p>You <em>could</em> back up each service by hand — EBS has snapshots, RDS has its own, DynamoDB another, EFS another. But that means many schedules, many scripts, no single view, and no easy way to <em>prove</em> to an auditor that everything is protected. That's the mess AWS Backup removes.</p>
+  <div class="flow a" style="--i:1">
+    <div class="box"><b>Backup plan</b>How often, how long to keep, when to move to cold storage.</div>
+    <div class="arr">→</div>
+    <div class="box"><b>Apply by tag</b>One policy auto-covers every resource with a tag — across all services.</div>
+    <div class="arr">→</div>
+    <div class="box"><b>Backup vault</b>Encrypted store holding the recovery points.</div>
+  </div>
+  <p>So you write <strong>one policy</strong> ("daily, keep 35 days, move to cold after 90") and it protects EC2/EBS, RDS, Aurora, DynamoDB, EFS, FSx, S3, even on-prem via Storage Gateway, from one dashboard.</p>
+  <div class="callout callout--intuition a" style="--i:2">
+    <div class="callout__t">The word the exam loves: RPO</div>
+    <p><strong>Recovery Point Objective</strong> = how much data you can afford to lose, which is just <em>how often you back up</em>. Back up every hour → you lose at most an hour. That's why backup <em>frequency</em> is a policy decision, not an afterthought.</p>
+  </div>
+  <ul class="clean a" style="--i:3">
+    <li><strong>Cross-Region / cross-account copies</strong> — keep a backup far away so one Region (or one hacked account) going down doesn't take your backups with it. This is disaster recovery.</li>
+    <li><strong>Backup Vault Lock</strong> — makes backups <em>immutable</em> (WORM: write-once-read-many). Once locked, <em>nobody</em> — not an admin, not even root — can delete them before their retention ends. This is the anti-ransomware / compliance feature: attackers can't wipe your backups to force a ransom.</li>
+  </ul>
+  <div class="callout callout--trap a" style="--i:4">
+    <div class="callout__t">The distinction that's tested</div>
+    <p>AWS Backup is for <strong>scheduled protection &amp; recovery</strong> — not one-time bulk transfer (that's Snow) and not live hybrid access (that's Storage Gateway). If the question says <em>"centrally manage backups,"</em> <em>"retention policy,"</em> or <em>"immutable / ransomware-proof,"</em> it's AWS Backup (+ Vault Lock).</p>
+  </div>
+
+  <!-- 5. RECAP -->
+  <div class="sec-head a" style="--i:0"><span class="sec-num">05</span><div><div class="sec-kicker">Lock it in</div><h2>The whole topic in three sentences</h2></div></div>
+  <ul class="clean a" style="--i:1">
+    <li><strong>Snow Family</strong> — a one-time moving truck for data too big to upload. Bandwidth math wins; ship a box. (cone &lt; ball &lt; mobile.)</li>
+    <li><strong>Storage Gateway</strong> — an always-on bridge so on-prem apps keep working while their storage actually lives in AWS, with a local cache for speed. (File / Tape / Volume.)</li>
+    <li><strong>AWS Backup</strong> — one policy that schedules, retains, and protects copies of your AWS data, with cross-Region DR and immutable Vault Lock against ransomware.</li>
+  </ul>
+  <div class="callout callout--hook a" style="--i:2">
+    <div class="callout__t">If you remember one line</div>
+    <p><strong>Move once → Snow. Keep using → Storage Gateway. Protect → AWS Backup.</strong> Match the <em>verb</em> in the question and you can't get it wrong.</p>
+  </div>
+
+  <hr class="rule">
+  <footer>Companion to the <a href="moving-data-to-aws.html" style="color:var(--accent)">cheat-sheet page</a> &middot; AWS CLF-C02 study workspace &middot; 30 Jun 2026</footer>
+</div>
+</body>
+</html>
