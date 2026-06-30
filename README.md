@@ -2,7 +2,7 @@
 
 A self-contained study workspace for the **AWS Certified Cloud Practitioner (CLF-C02)** exam: visual lesson pages and rendered notes, all static HTML.
 
-**Live site:** https://sahilll15.github.io/aws-cloud-practitioner-study/
+**Live site:** https://sahilll15.github.io/aws-ccp-prep/
 
 ## What's here
 - `index.html` — study home: all 13 modules + lesson pages + deep-dive references.
