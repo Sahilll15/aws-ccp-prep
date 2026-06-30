@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module 11 — Pricing and Support</title>
+<title>Module 11 — Billing, Pricing & Support</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -54,34 +54,87 @@
 <body>
   <div class="prose">
     <a class="home" href="../index.html">&larr; Study home</a>
-<h1 id="module-11-pricing-and-support">Module 11 — Pricing and Support</h1>
-<p><strong>Status: ⬜ upcoming</strong> · Domain 4 (Billing, Pricing &amp; Support — 12%) · We'll deepen this and build a visual page when we study it.</p>
-<h2 id="pricing-fundamentals">Pricing fundamentals</h2>
+<h1 id="module-11-billing-pricing-support">Module 11 — Billing, Pricing &amp; Support</h1>
+<p><strong>Status: ✅ done (in depth)</strong> · Domain 4 (12%) · Visual page: <a href="../billing-and-pricing.html">Billing &amp; Pricing</a>. The smallest domain and the easiest points — concrete recall, not concepts. Bank all of it. Whole domain = <strong>4 pillars</strong>: how you're charged · tools to see/control cost · billing across accounts · support plans.</p>
+<h2 id="pillar-1-how-aws-charges-you">Pillar 1 — How AWS charges you</h2>
+<p>Utility model (like electricity): pay for what you draw, better rates if you commit. <strong>Three pricing principles:</strong>
+- <strong>Pay as you go</strong> — only for what you use, no big upfront, no long contracts required.
+- <strong>Save when you commit</strong> — Reserved Instances / Savings Plans → big discount for 1–3 yr commitment.
+- <strong>Pay less as AWS grows</strong> — economies of scale + tiered/volume discounts → more usage, lower per-unit price.</p>
+<p><strong>Three cost drivers</strong> (what you actually pay for): <strong>Compute · Storage · Data transfer.</strong></p>
+<blockquote>
+<p><strong>Gotcha:</strong> data <strong>IN</strong> is generally <strong>free</strong>; data <strong>OUT</strong> to the internet <strong>costs</strong>; same-Region transfer usually free/cheap. "What's expensive?" → moving data <em>out</em>.</p>
+</blockquote>
+<h3 id="free-tier-3-flavors">Free Tier — 3 flavors</h3>
 <ul>
-<li><strong>3 cost drivers</strong>: <strong>compute</strong>, <strong>storage</strong>, <strong>data transfer</strong> (data <strong>in</strong> is usually free; data <strong>out</strong> is charged).</li>
-<li><strong>Pay-as-you-go</strong>; commit (Reserved/Savings Plans) for discounts; <strong>volume discounts</strong> (pay less per unit as you use more).</li>
-<li><strong>AWS Free Tier</strong>: <strong>always free</strong> (e.g. Lambda 1M req/mo) · <strong>12-month free</strong> (e.g. 750 hrs t2.micro) · <strong>trials</strong> (short-term).</li>
+<li><strong>Always Free</strong> — free forever within limits (Lambda 1M req/mo, DynamoDB 25 GB).</li>
+<li><strong>12 Months Free</strong> — free for first 12 months after sign-up (750 hrs/mo t2.micro EC2, 5 GB S3).</li>
+<li><strong>Trials</strong> — short-term, starts when you activate the service (some SageMaker/Inspector).</li>
 </ul>
-<h2 id="billing-cost-management-tools">Billing &amp; cost-management tools</h2>
+<h2 id="pillar-2-the-four-cost-tools-most-tested-keep-them-straight-by-when-in-time">Pillar 2 — The four cost tools (most-tested; keep them straight by <em>when in time</em>)</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>When</th>
+<th>Job</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Pricing Calculator</strong></td>
+<td>Before</td>
+<td><strong>Estimate</strong> an architecture's cost <em>before</em> building (planning).</td>
+</tr>
+<tr>
+<td><strong>AWS Budgets</strong></td>
+<td>Watching</td>
+<td>Set spend/usage limits, get <strong>alerts</strong> when you cross / are forecast to cross. Proactive.</td>
+</tr>
+<tr>
+<td><strong>Cost Explorer</strong></td>
+<td>After</td>
+<td><strong>Visualize &amp; analyze</strong> past/current spend, trends, forecast. "Where did money go?"</td>
+</tr>
+<tr>
+<td><strong>Cost &amp; Usage Report (CUR)</strong></td>
+<td>Raw</td>
+<td><strong>Most detailed</strong> line-item/hourly billing data, exported to S3 for deep analysis.</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p>Analogy: Calculator = the quote before the job · Budgets = the smoke alarm · Cost Explorer = your bank statement review · CUR = the itemized receipt.
+<strong>Cost allocation tags</strong> — tag resources (<code>team:marketing</code>) to break spend down by team/project/env in Cost Explorer/CUR.</p>
+</blockquote>
+<h2 id="pillar-3-many-accounts-one-bill">Pillar 3 — Many accounts → one bill</h2>
+<p><strong>AWS Organizations</strong> = centrally manage many AWS accounts. Billing superpower = <strong>Consolidated Billing</strong>:
+- <strong>One bill</strong> for all accounts (one payer account).
+- <strong>Combined usage → bigger volume discounts</strong>, pooled and shared across accounts.
+- Easier tracking + central governance (SCPs, more of a security topic).</p>
+<blockquote>
+<p>Trigger: "one bill for multiple accounts" / "share volume discounts" → <strong>Organizations + Consolidated Billing</strong>.</p>
+</blockquote>
+<h2 id="pillar-4-the-support-plan-ladder">Pillar 4 — The support-plan ladder</h2>
+<p>Learn <strong>what each tier unlocks</strong> (that's how questions are phrased), not exact prices.
+| Plan | ~Price | Unlocks (tested bits) |
+|---|---|---|
+| <strong>Basic</strong> | Free | Docs, forums, 24/7 account/billing customer service, <strong>core</strong> Trusted Advisor checks, Health Dashboard. No tech support. |
+| <strong>Developer</strong> | ~$29/mo | Email support, <strong>business hours</strong>, 1 contact. Experimenting/dev. |
+| <strong>Business</strong> | ~$100/mo | <strong>24/7 phone/chat/email</strong> with engineers, <strong>full Trusted Advisor</strong>, unlimited contacts, 3rd-party software support. <strong>Min for production.</strong> |
+| <strong>Enterprise On-Ramp</strong> | ~$5,500/mo | <strong>Pool of TAMs</strong>, &lt;30 min business-critical response, cost-optimization workshops. |
+| <strong>Enterprise</strong> | ~$15,000/mo | <strong>Designated TAM</strong>, <strong>&lt;15 min</strong> business-critical response, Concierge, Incident Detection &amp; Response, Well-Architected reviews. |</p>
+<blockquote>
+<p>Triggers: "free/just starting" → <strong>Basic</strong> · "24/7 phone" or "full Trusted Advisor" → <strong>Business</strong> (production minimum) · "<strong>designated</strong> TAM / &lt;15 min" → <strong>Enterprise</strong> · "<strong>pool</strong> of TAMs" → <strong>On-Ramp</strong>.</p>
+</blockquote>
+<h2 id="bonus-aws-trusted-advisor-shows-up-in-billing-qs">Bonus — AWS Trusted Advisor (shows up in billing Qs)</h2>
+<p>Automated best-practice checks in <strong>5 categories</strong>: <strong>Cost Optimization</strong> (find idle/underused resources), <strong>Security</strong>, <strong>Fault Tolerance</strong>, <strong>Performance</strong>, <strong>Service Limits</strong>. Basic/Developer = core checks only; <strong>Business+ = all checks</strong>.</p>
+<h2 id="exam-trigger-cheat-sheet">Exam-trigger cheat sheet</h2>
 <ul>
-<li><strong>AWS Pricing Calculator</strong> — estimate costs <strong>before</strong> building.</li>
-<li><strong>AWS Budgets</strong> — set spend/usage limits + alerts (proactive).</li>
-<li><strong>AWS Cost Explorer</strong> — visualize/analyze <strong>past</strong> spend + forecast.</li>
-<li><strong>Cost &amp; Usage Report (CUR)</strong> — most detailed billing data.</li>
-<li><strong>Cost allocation tags</strong> — attribute costs to teams/projects.</li>
-<li><strong>AWS Organizations</strong> + <strong>Consolidated Billing</strong> — one bill for many accounts + shared volume discounts.</li>
-</ul>
-<h2 id="support-plans-know-the-ladder">Support plans (know the ladder)</h2>
-<ul>
-<li><strong>Basic</strong> (free) — docs, forums, Trusted Advisor (core checks).</li>
-<li><strong>Developer</strong> (~$29/mo) — business-hours email, experimenting.</li>
-<li><strong>Business</strong> (~$100/mo) — 24/7 phone/chat, <strong>full Trusted Advisor</strong>; min for production.</li>
-<li><strong>Enterprise On-Ramp</strong> (~$5,500/mo) — pool of TAMs, faster response.</li>
-<li><strong>Enterprise</strong> (~$15,000/mo) — dedicated <strong>Technical Account Manager (TAM)</strong>, 15-min critical response, Concierge.</li>
-</ul>
-<h2 id="likely-exam-framing">Likely exam framing</h2>
-<ul>
-<li>Estimate before building → <strong>Pricing Calculator</strong> · alert on spend → <strong>Budgets</strong> · analyze past spend → <strong>Cost Explorer</strong> · one bill many accounts → <strong>Organizations/Consolidated Billing</strong> · dedicated <strong>TAM</strong> → <strong>Enterprise</strong> plan.</li>
+<li>estimate before building → <strong>Pricing Calculator</strong> · alert on spend → <strong>Budgets</strong> · analyze past spend → <strong>Cost Explorer</strong> · line-item detail → <strong>CUR</strong></li>
+<li>one bill, many accounts, volume discounts → <strong>Organizations / Consolidated Billing</strong> · cost by team → <strong>cost allocation tags</strong></li>
+<li>24/7 phone + full Trusted Advisor (prod) → <strong>Business</strong> · designated TAM / 15-min → <strong>Enterprise</strong> · find idle resources → <strong>Trusted Advisor (Cost Optimization)</strong></li>
+<li>free forever (limits) → <strong>Always Free</strong> · first 12 months → <strong>12 Months Free</strong></li>
 </ul>
   </div>
   <footer>Rendered from notes/Module-11-Pricing-and-Support.md &middot; AWS CLF-C02 study workspace</footer>
