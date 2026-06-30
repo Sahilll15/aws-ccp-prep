@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔐 How a VPN Actually Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-display:'Fraunces',Georgia,serif; --font-body:'IBM Plex Sans',system-ui,sans-serif; --font-mono:'IBM Plex Mono','SF Mono',Consolas,monospace;
+    --bg:#f5f1e8; --surface:#fffdf7; --surface2:#efe9da; --border:rgba(30,40,60,0.10); --border-bright:rgba(30,40,60,0.20);
+    --text:#20283a; --text-dim:#5f6b80; --accent:#1e3a5f; --accent-dim:rgba(30,58,95,0.08);
+    --gold:#9a6b15; --gold-dim:rgba(154,107,21,0.11); --green:#4d7c2f; --teal:#0e7490;
+  }
+  @media (prefers-color-scheme: dark){ :root{
+    --bg:#12161d; --surface:#1a1f29; --surface2:#222937; --border:rgba(255,255,255,0.08); --border-bright:rgba(255,255,255,0.17);
+    --text:#e9e6dd; --text-dim:#9aa3b4; --accent:#7aa7d6; --accent-dim:rgba(122,167,214,0.14);
+    --gold:#d9af52; --gold-dim:rgba(217,175,82,0.14); --green:#93c167; --teal:#4cc4d6;
+  }}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{ background:var(--bg); background-image:radial-gradient(ellipse at 12% 0%,var(--accent-dim) 0%,transparent 42%); background-attachment:fixed;
+    color:var(--text); font-family:var(--font-body); font-size:16px; line-height:1.72; padding:48px 24px 80px; -webkit-font-smoothing:antialiased; overflow-wrap:break-word; }
+  .prose{ max-width:860px; margin:0 auto; }
+  .home{ display:inline-block; font-family:var(--font-mono); font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase;
+    color:var(--text-dim); text-decoration:none; margin-bottom:28px; padding:6px 12px; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
+  .home:hover{ color:var(--text); border-color:var(--border-bright); }
+  .prose h1{ font-family:var(--font-display); font-weight:500; font-size:clamp(30px,4.5vw,44px); line-height:1.1; letter-spacing:-0.5px; margin:6px 0 22px; }
+  .prose h2{ font-family:var(--font-display); font-weight:500; font-size:27px; line-height:1.18; letter-spacing:-0.3px; margin:42px 0 14px; padding-top:18px; border-top:1px solid var(--border); }
+  .prose h3{ font-family:var(--font-display); font-weight:600; font-size:20px; margin:28px 0 10px; }
+  .prose h4{ font-family:var(--font-mono); font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1.2px; color:var(--gold); margin:22px 0 8px; }
+  .prose p{ margin:0 0 15px; }
+  .prose ul,.prose ol{ margin:0 0 15px; padding-left:24px; }
+  .prose li{ margin-bottom:6px; }
+  .prose a{ color:var(--accent); text-decoration:underline; text-underline-offset:2px; }
+  .prose strong{ color:var(--text); font-weight:700; }
+  .prose hr{ border:none; height:1px; background:var(--border); margin:32px 0; }
+  .prose code{ font-family:var(--font-mono); font-size:0.85em; background:var(--accent-dim); color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .prose pre{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px 18px; overflow-x:auto; margin:0 0 18px; }
+  .prose pre code{ background:none; color:var(--text); padding:0; font-size:13px; line-height:1.55; white-space:pre; }
+  .prose blockquote{ border-left:4px solid var(--gold); background:var(--gold-dim); border-radius:0 8px 8px 0; padding:12px 18px; margin:0 0 18px; color:var(--text); }
+  .prose blockquote p:last-child{ margin-bottom:0; }
+  .prose .wl{ color:var(--accent); font-weight:600; }
+  .table-scroll{ overflow-x:auto; border:1px solid var(--border); border-radius:12px; margin:0 0 20px; background:var(--surface); }
+  .prose table{ width:100%; border-collapse:collapse; font-size:14px; line-height:1.5; }
+  .prose th{ background:var(--surface2); font-family:var(--font-mono); font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-dim); text-align:left; padding:11px 14px; border-bottom:2px solid var(--border-bright); white-space:nowrap; }
+  .prose td{ padding:11px 14px; border-bottom:1px solid var(--border); vertical-align:top; }
+  .prose tbody tr:last-child td{ border-bottom:none; }
+  .prose tbody tr:nth-child(even){ background:var(--accent-dim); }
+  footer{ max-width:860px; margin:40px auto 0; font-family:var(--font-mono); font-size:11px; color:var(--text-dim); opacity:0.6; }
+</style>
+</head>
+<body>
+  <div class="prose">
+    <a class="home" href="../index.html">&larr; Study home</a>
+<h1 id="how-a-vpn-actually-works">🔐 How a VPN Actually Works</h1>
+<p>Deep-dive reference on Virtual Private Networks — the real mechanics (tunneling, IPsec, IKE, crypto), not just "it's a secure tunnel." Builds on <span class="wl">Networking</span> (encapsulation §4, TLS handshake §2, NAT §7, IPsec-at-L3). Tied to AWS <strong>Site-to-Site VPN</strong> / <strong>Client VPN</strong> for <span class="wl">AWS-Cloud-Practitioner</span> Domain 3.</p>
+<p>← back to <span class="wl">Networking</span> · <span class="wl">DevOps</span> · <span class="wl">AWS-Cloud-Practitioner</span></p>
+<hr />
+<h2 id="the-core-idea">The core idea</h2>
+<p>A <strong>VPN (Virtual Private Network)</strong> makes two endpoints behave as if they're on the same private LAN, even though traffic between them crosses the <strong>public, untrusted internet</strong>. Three pillars:</p>
+<ol>
+<li><strong>Tunneling (encapsulation)</strong> — wrap each packet inside another so private addressing is hidden and the internet routes it between two public endpoints.</li>
+<li><strong>Encryption</strong> — scramble the payload so a sniffer sees gibberish.</li>
+<li><strong>Authentication + integrity</strong> — each end proves its identity (no tunneling to an imposter) and every packet is integrity-checked (no tampering in flight).</li>
+</ol>
+<blockquote>
+<p><strong>One-liner:</strong> a VPN is an encrypted, authenticated tunnel that carries private network traffic across a public network as if it were local.</p>
+</blockquote>
+<h2 id="two-types">Two types</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th><strong>Remote-access</strong> (client-to-site)</th>
+<th><strong>Site-to-site</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Connects</td>
+<td>One <strong>device</strong> → a private network</td>
+<td>Two whole <strong>networks</strong></td>
+</tr>
+<tr>
+<td>Examples</td>
+<td>Corporate "connect to office", consumer privacy VPNs, <strong>AWS Client VPN</strong></td>
+<td>On-prem ↔ AWS VPC, office ↔ office, <strong>AWS Site-to-Site VPN</strong></td>
+</tr>
+<tr>
+<td>Your-side endpoint</td>
+<td>VPN <strong>client software</strong> on the device</td>
+<td>A VPN <strong>gateway/router</strong> (no per-device software)</td>
+</tr>
+<tr>
+<td>Typical tech</td>
+<td>TLS-based (OpenVPN), WireGuard, IKEv2</td>
+<td><strong>IPsec</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>The AWS exam's "VPN" (the VGW one) is <strong>site-to-site</strong>.</p>
+<h2 id="pillar-1-tunneling-encapsulation">Pillar 1 — Tunneling / encapsulation</h2>
+<p>A VPN does an <em>extra</em> wrap beyond normal encapsulation (<span class="wl">Networking</span> §4): it puts a whole finished IP packet inside the payload of a new packet.</p>
+<pre><code>Original packet (inside the private network):
+  [IP: 10.0.1.5 → 192.168.2.8][TCP][data]
+
+After IPsec tunnel-mode encapsulation:
+  [IP: 198.51.100.7 → 203.0.113.20]   ← new OUTER header (the two gateways' PUBLIC IPs)
+     [ESP header]
+        [ ENCRYPTED { [IP:10.0.1.5 → 192.168.2.8][TCP][data] } ]  ← whole original packet, encrypted
+     [ESP auth/trailer]
+</code></pre>
+<p>The internet sees only the <strong>outer</strong> header (public IP A → public IP B). Private addressing + data are encrypted inside and invisible. That's the "virtual private" part.</p>
+<h2 id="pillars-2-3-encryption-authentication-same-pattern-as-tls">Pillars 2 &amp; 3 — encryption + authentication (same pattern as TLS)</h2>
+<p>Mirrors the TLS handshake (<span class="wl">Networking</span> §2): asymmetric crypto to bootstrap, symmetric to do bulk work.</p>
+<ul>
+<li><strong>Diffie-Hellman key exchange</strong> — both ends derive a <strong>shared secret over the public internet without ever sending it</strong>. An eavesdropper seeing the public values can't compute it.</li>
+<li><strong>Symmetric encryption (AES, ChaCha20)</strong> — fast bulk encryption of the traffic, using keys from that exchange.</li>
+<li><strong>Hashing / HMAC (SHA-256)</strong> — integrity; proves the packet wasn't altered.</li>
+<li><strong>Perfect Forward Secrecy (PFS)</strong> — fresh DH keys per session, so compromising one session never exposes past ones.</li>
+</ul>
+<h2 id="protocol-landscape">Protocol landscape</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Protocol</th>
+<th>Layer</th>
+<th>Used for</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>IPsec</strong></td>
+<td>L3</td>
+<td>Site-to-site (+ IKEv2 remote-access)</td>
+<td>The classic. What <strong>AWS Site-to-Site VPN</strong> uses.</td>
+</tr>
+<tr>
+<td><strong>TLS/SSL VPN</strong> (OpenVPN, AnyConnect)</td>
+<td>rides TLS</td>
+<td>Remote-access</td>
+<td>Often on <strong>port 443</strong> to pass firewalls. <strong>AWS Client VPN</strong> is OpenVPN-based.</td>
+</tr>
+<tr>
+<td><strong>WireGuard</strong></td>
+<td>L3 (UDP)</td>
+<td>Modern everything</td>
+<td>Tiny codebase, fixed modern crypto (ChaCha20 / Curve25519), roaming-friendly, "cryptokey routing" (peer = its public key).</td>
+</tr>
+<tr>
+<td><strong>PPTP / L2TP / SSTP</strong></td>
+<td>various</td>
+<td>Legacy</td>
+<td>PPTP broken/dead; L2TP usually L2TP/IPsec.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="ipsec-deep-dive-what-aws-uses">IPsec deep dive (what AWS uses)</h2>
+<p>A suite with two jobs: <strong>negotiate keys (IKE)</strong>, then <strong>protect data (ESP/AH)</strong>.</p>
+<h3 id="ike-internet-key-exchange-the-handshake-two-phases">IKE (Internet Key Exchange) — the handshake, two phases</h3>
+<ul>
+<li><strong>Phase 1 — secure management channel.</strong> Gateways authenticate (pre-shared key or certificates) + run Diffie-Hellman → establish the <strong>IKE SA</strong>. Runs on <strong>UDP 500</strong>.</li>
+<li><strong>Phase 2 — the data tunnel.</strong> Inside the Phase-1 channel, negotiate cipher/keys/which-traffic → create the <strong>IPsec SAs</strong>. This is the tunnel data rides in.</li>
+<li><strong>IKEv2</strong> = modern (fewer round trips, better re-keying, survives network changes via MOBIKE). IKEv1 = older but common.</li>
+</ul>
+<h3 id="esp-vs-ah">ESP vs AH</h3>
+<ul>
+<li><strong>ESP (Encapsulating Security Payload)</strong> — <strong>encrypts AND authenticates</strong> the payload. The one actually used. IP protocol <strong>50</strong>.</li>
+<li><strong>AH (Authentication Header)</strong> — integrity only, <strong>no encryption</strong>, <strong>breaks through NAT</strong>. Protocol 51. Rare.</li>
+</ul>
+<h3 id="transport-vs-tunnel-mode">Transport vs tunnel mode</h3>
+<ul>
+<li><strong>Transport</strong> — encrypts payload only, keeps original IP header (host-to-host).</li>
+<li><strong>Tunnel</strong> — encrypts the <strong>entire original packet</strong> + new IP header. <strong>Site-to-site uses this.</strong></li>
+</ul>
+<h3 id="security-association-sa">Security Association (SA)</h3>
+<p>A <strong>one-way</strong> agreement (cipher + keys + rules for one direction). A working tunnel needs <strong>two SAs</strong> (one each way). Identified by an <strong>SPI (Security Parameter Index)</strong> in the ESP header so the receiver picks the right keys.</p>
+<h3 id="nat-traversal-nat-t">NAT traversal (NAT-T)</h3>
+<p>Plain ESP has no ports → breaks crossing a NAT (<span class="wl">Networking</span> §7). <strong>NAT-T</strong> wraps ESP in <strong>UDP 4500</strong> so the NAT has a port to track. Needed because nearly every on-prem router is behind NAT (AWS handles it).</p>
+<h2 id="end-to-end-a-packet-through-a-site-to-site-vpn">End-to-end: a packet through a site-to-site VPN</h2>
+<ol>
+<li>Host A (<code>10.0.1.5</code>) → Host B (<code>192.168.2.8</code>) on the remote net.</li>
+<li>A's routing: "<code>192.168.2.0/24</code> → VPN gateway" → packet goes to <strong>Gateway A</strong>.</li>
+<li>Gateway A matches IPsec policy → <strong>encrypts</strong> the whole packet (ESP) + <strong>wraps</strong> it <code>[GW-A public IP → GW-B public IP]</code>.</li>
+<li>Crosses the internet — sniffers see only an encrypted blob between two public IPs.</li>
+<li><strong>Gateway B</strong> authenticates (integrity check), <strong>decrypts</strong>, recovers the original packet.</li>
+<li>Gateway B forwards it onto its LAN to Host B.</li>
+<li>Return traffic = exact reverse (other SA).</li>
+</ol>
+<h2 id="remote-access-mechanics-laptop-consumer-vpn">Remote-access mechanics (laptop / consumer VPN)</h2>
+<ul>
+<li>Client creates a <strong>virtual interface</strong>: <strong>TUN</strong> (L3/IP packets) or <strong>TAP</strong> (L2/Ethernet frames); OS treats it as a real NIC.</li>
+<li>After auth, the server assigns a <strong>virtual IP</strong> from the private range.</li>
+<li>The OS <strong>routing table is rewritten</strong> so target traffic enters the virtual interface → client encrypts → sends over a normal socket to the VPN server → server decrypts + injects into the network.</li>
+<li><strong>Split tunnel</strong> = only private-network traffic via VPN; <strong>full tunnel</strong> = <em>all</em> traffic via VPN.</li>
+<li><strong>Why consumer privacy VPNs hide your IP:</strong> full-tunnel → all traffic exits from the <strong>VPN server's IP</strong>; sites see that, not you; ISP sees only encrypted traffic to the server. Catch: <strong>trust shifts entirely to the VPN provider</strong>.</li>
+</ul>
+<h3 id="geo-unblocking-watch-another-countrys-content">Geo-unblocking — "watch another country's content"</h3>
+<p>Same machinery, one twist: <strong>pick a full-tunnel exit server in country X</strong>, and your traffic reaches the internet from <em>that country's</em> IP.
+- <strong>Why it works = IP geolocation.</strong> Your public IP must be real/routable (it's the return address). IP blocks are allocated by region; commercial DBs (e.g. <strong>MaxMind</strong>) map <code>IP range → country</code>. Sites just look up your <strong>exit IP</strong>. No VPN → ISP's India IP (you look Indian). VPN→US server → server's US IP (you look American). You don't hide your location, you <strong>borrow</strong> the exit node's.
+- <strong>Flow:</strong> You (India) → encrypted full tunnel → <strong>VPN server (USA)</strong> makes the request from its US IP → Netflix sees a US IP → serves the US catalog → response back through the tunnel.
+- <strong>DNS must go through the tunnel too</strong> — else a query to your real ISP resolver = a <strong>DNS leak</strong> that exposes your true location. VPN pushes its own resolvers.
+- <strong>Why it breaks:</strong> streaming services run <strong>VPN detection</strong> — blocklists of known datacenter/VPN IP ranges → <em>"you appear to be using a proxy/unblocker."</em> Providers counter with rotating + residential IPs. Permanent cat-and-mouse (same server works one week, not the next).
+- Contrast: this is <strong>full tunnel + remote-access</strong> (disguise location); a typical corporate OpenVPN is <strong>split tunnel</strong> (reach private resources, only some traffic in). Opposite goals, same tech.</p>
+<h2 id="aws-angle-exam-relevant">AWS angle (exam-relevant)</h2>
+<p><strong>AWS Site-to-Site VPN</strong> = textbook IPsec tunnel mode:
+- <strong>Customer Gateway (CGW)</strong> = resource describing <strong>your</strong> side (on-prem router public IP, BGP ASN).
+- <strong>Virtual Private Gateway (VGW)</strong> = the <strong>AWS</strong> side, attached to the VPC (or attach to a <strong>Transit Gateway</strong> for many VPCs).
+- AWS provisions <strong>two tunnels</strong> to two endpoints for <strong>HA/redundancy</strong>.
+- Routing <strong>static or dynamic (BGP)</strong>; IPsec (IKE + ESP), <strong>encrypted, over the public internet</strong>.</p>
+<p><strong>AWS Client VPN</strong> = managed <strong>remote-access</strong> flavor (OpenVPN/TLS) for individual users reaching the VPC.</p>
+<blockquote>
+<p><strong>Exam nuance:</strong> <strong>Direct Connect alone is private but NOT encrypted</strong> (dedicated physical line, no tunnel). Need dedicated line <em>and</em> encryption → run a <strong>VPN over Direct Connect</strong>. Common distractor. See <span class="wl">AWS-Cloud-Practitioner</span> Domain 3 connectivity menu.</p>
+</blockquote>
+<h2 id="worked-example-corporate-openvpn-remote-access-and-a-common-confusion">Worked example — corporate OpenVPN (remote-access), and a common confusion</h2>
+<p><strong>OpenVPN is remote-access + TLS-based — it has NO Virtual Private Gateway.</strong> VGW is an AWS <strong>site-to-site IPsec</strong> construct (two <em>networks</em>); a person on a laptop logging in is <strong>remote-access</strong>. The box that feels like a "gateway" in an OpenVPN setup is just the <strong>OpenVPN server / concentrator</strong> (typically an instance/appliance inside the company's AWS VPC).</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th><strong>OpenVPN</strong> (typical corporate)</th>
+<th><strong>AWS Site-to-Site VPN (VGW)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Type</td>
+<td>Remote-access (a person)</td>
+<td>Site-to-site (two networks)</td>
+</tr>
+<tr>
+<td>Tech</td>
+<td><strong>TLS/SSL</strong> (OpenSSL certs)</td>
+<td><strong>IPsec</strong> (IKE + ESP)</td>
+</tr>
+<tr>
+<td>Your side</td>
+<td>OpenVPN <strong>client app</strong></td>
+<td>A router/gateway</td>
+</tr>
+<tr>
+<td>Concentrator</td>
+<td>An <strong>OpenVPN server</strong></td>
+<td>A <strong>Virtual Private Gateway</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Corrected step-by-step flow:</strong>
+1. <strong>Auth happens ONCE at tunnel setup</strong> — mutual TLS: server cert + <strong>client cert</strong> (+ usually username/password, often MFA). Not per-request.
+2. Server assigns a <strong>virtual IP</strong> from the VPN pool (e.g. <code>10.8.0.6</code>), bound to a <strong>TUN</strong> interface on <em>your</em> laptop.
+3. Server <strong>pushes routes to <em>your</em> machine</strong> ("corporate ranges → the tun interface"). The send-side routing lives on <strong>your</strong> box, not the destination server. (Split tunnel = only corp ranges; full = everything.)
+4. You hit an internal app → OS matches a pushed route → packet into TUN → OpenVPN <strong>encrypts</strong> → ships to the OpenVPN server.
+5. OpenVPN server <strong>decrypts + forwards into the VPC/corp network</strong>. Return routing to your virtual IP is handled by the <strong>OpenVPN server</strong> — either a route for the VPN pool points back at it, or it <strong>NATs</strong> your traffic to its own IP (so the app server never even knows your <code>10.8.0.6</code> exists).</p>
+<blockquote>
+<p><strong>The misconception to avoid:</strong> the destination app server does <strong>not</strong> list your virtual IP in its routing table, and there is <strong>no VGW</strong> authenticating each request. Auth is one-time (mutual TLS); the OpenVPN server is the only component that knows your virtual IP and does the routing/NAT on both ends.</p>
+</blockquote>
+<h2 id="vpn-vs-neighbors-gotchas">VPN vs neighbors + gotchas</h2>
+<ul>
+<li><strong>vs HTTPS/TLS:</strong> HTTPS encrypts <em>one app's</em> connection; a VPN encrypts at the <strong>network layer</strong> for everything and hides routing/addresses.</li>
+<li><strong>vs proxy:</strong> proxy = app-level, often unencrypted; VPN = OS-level, encrypted, all traffic.</li>
+<li><strong>Overhead:</strong> crypto + extra header cost CPU and bytes; the header can push past the <strong>MTU</strong> → fragmentation → often <strong>clamp the MSS</strong>.</li>
+<li><strong>Not anonymity:</strong> doesn't stop malware or make you untraceable; provider/employer can still see traffic. Gateway is a <strong>bottleneck / SPOF</strong> unless made redundant.</li>
+</ul>
+<hr />
+<h2 id="source">Source</h2>
+<p>Taught in the AWS CLF-C02 study session, 2026-06-29, off the back of <span class="wl">AWS-Cloud-Practitioner</span> Module 5 (Networking). Mechanics-level companion to the exam-level VPN coverage in the hub's Domain 3.</p>
+  </div>
+  <footer>Rendered from notes/VPN.md &middot; AWS CLF-C02 study workspace</footer>
+</body>
+</html>

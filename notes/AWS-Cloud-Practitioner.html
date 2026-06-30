@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>☁️ AWS Certified Cloud Practitioner (CLF-C02)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-display:'Fraunces',Georgia,serif; --font-body:'IBM Plex Sans',system-ui,sans-serif; --font-mono:'IBM Plex Mono','SF Mono',Consolas,monospace;
+    --bg:#f5f1e8; --surface:#fffdf7; --surface2:#efe9da; --border:rgba(30,40,60,0.10); --border-bright:rgba(30,40,60,0.20);
+    --text:#20283a; --text-dim:#5f6b80; --accent:#1e3a5f; --accent-dim:rgba(30,58,95,0.08);
+    --gold:#9a6b15; --gold-dim:rgba(154,107,21,0.11); --green:#4d7c2f; --teal:#0e7490;
+  }
+  @media (prefers-color-scheme: dark){ :root{
+    --bg:#12161d; --surface:#1a1f29; --surface2:#222937; --border:rgba(255,255,255,0.08); --border-bright:rgba(255,255,255,0.17);
+    --text:#e9e6dd; --text-dim:#9aa3b4; --accent:#7aa7d6; --accent-dim:rgba(122,167,214,0.14);
+    --gold:#d9af52; --gold-dim:rgba(217,175,82,0.14); --green:#93c167; --teal:#4cc4d6;
+  }}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{ background:var(--bg); background-image:radial-gradient(ellipse at 12% 0%,var(--accent-dim) 0%,transparent 42%); background-attachment:fixed;
+    color:var(--text); font-family:var(--font-body); font-size:16px; line-height:1.72; padding:48px 24px 80px; -webkit-font-smoothing:antialiased; overflow-wrap:break-word; }
+  .prose{ max-width:860px; margin:0 auto; }
+  .home{ display:inline-block; font-family:var(--font-mono); font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase;
+    color:var(--text-dim); text-decoration:none; margin-bottom:28px; padding:6px 12px; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
+  .home:hover{ color:var(--text); border-color:var(--border-bright); }
+  .prose h1{ font-family:var(--font-display); font-weight:500; font-size:clamp(30px,4.5vw,44px); line-height:1.1; letter-spacing:-0.5px; margin:6px 0 22px; }
+  .prose h2{ font-family:var(--font-display); font-weight:500; font-size:27px; line-height:1.18; letter-spacing:-0.3px; margin:42px 0 14px; padding-top:18px; border-top:1px solid var(--border); }
+  .prose h3{ font-family:var(--font-display); font-weight:600; font-size:20px; margin:28px 0 10px; }
+  .prose h4{ font-family:var(--font-mono); font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1.2px; color:var(--gold); margin:22px 0 8px; }
+  .prose p{ margin:0 0 15px; }
+  .prose ul,.prose ol{ margin:0 0 15px; padding-left:24px; }
+  .prose li{ margin-bottom:6px; }
+  .prose a{ color:var(--accent); text-decoration:underline; text-underline-offset:2px; }
+  .prose strong{ color:var(--text); font-weight:700; }
+  .prose hr{ border:none; height:1px; background:var(--border); margin:32px 0; }
+  .prose code{ font-family:var(--font-mono); font-size:0.85em; background:var(--accent-dim); color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .prose pre{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px 18px; overflow-x:auto; margin:0 0 18px; }
+  .prose pre code{ background:none; color:var(--text); padding:0; font-size:13px; line-height:1.55; white-space:pre; }
+  .prose blockquote{ border-left:4px solid var(--gold); background:var(--gold-dim); border-radius:0 8px 8px 0; padding:12px 18px; margin:0 0 18px; color:var(--text); }
+  .prose blockquote p:last-child{ margin-bottom:0; }
+  .prose .wl{ color:var(--accent); font-weight:600; }
+  .table-scroll{ overflow-x:auto; border:1px solid var(--border); border-radius:12px; margin:0 0 20px; background:var(--surface); }
+  .prose table{ width:100%; border-collapse:collapse; font-size:14px; line-height:1.5; }
+  .prose th{ background:var(--surface2); font-family:var(--font-mono); font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-dim); text-align:left; padding:11px 14px; border-bottom:2px solid var(--border-bright); white-space:nowrap; }
+  .prose td{ padding:11px 14px; border-bottom:1px solid var(--border); vertical-align:top; }
+  .prose tbody tr:last-child td{ border-bottom:none; }
+  .prose tbody tr:nth-child(even){ background:var(--accent-dim); }
+  footer{ max-width:860px; margin:40px auto 0; font-family:var(--font-mono); font-size:11px; color:var(--text-dim); opacity:0.6; }
+</style>
+</head>
+<body>
+  <div class="prose">
+    <a class="home" href="../index.html">&larr; Study home</a>
+<h1 id="aws-certified-cloud-practitioner-clf-c02">☁️ AWS Certified Cloud Practitioner (CLF-C02)</h1>
+<p>Study hub for the <strong>AWS Certified Cloud Practitioner</strong> exam. Goal: <strong>pass in ~2–3 weeks (intensive)</strong>. Mode: Claude teaches → structured notes land here as we go. This is a <strong>conceptual</strong> exam — <strong>no Linux / CLI / hands-on required</strong>.</p>
+<blockquote>
+<p>📋 <strong>Complete topic checklist + Skill Builder module breakdown:</strong> <span class="wl">AWS-CLF-C02-Study-Guide</span> — every objective as a tickable to-do, converted from Hiroko Nishimura's CLF-C02 guide, mapped to the AWS Skill Builder courses I'm using.</p>
+</blockquote>
+<p>← back to <span class="wl">DevOps</span></p>
+<hr />
+<h2 id="exam-at-a-glance">🎯 Exam at a glance</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exam code</td>
+<td><strong>CLF-C02</strong> (current version)</td>
+</tr>
+<tr>
+<td>Questions</td>
+<td><strong>65</strong> (multiple choice + multiple response)</td>
+</tr>
+<tr>
+<td>Time</td>
+<td><strong>90 minutes</strong></td>
+</tr>
+<tr>
+<td>Pass mark</td>
+<td><strong>700 / 1000</strong> (scaled)</td>
+</tr>
+<tr>
+<td>Cost</td>
+<td><strong>~$100 USD</strong></td>
+</tr>
+<tr>
+<td>Format</td>
+<td>Online proctored or test center</td>
+</tr>
+<tr>
+<td>Level</td>
+<td>Foundational — breadth, not depth. No hands-on.</td>
+</tr>
+<tr>
+<td>🎯 <strong>Target exam date</strong></td>
+<td><strong>Saturday, 18 July 2026</strong> (booked target — reschedulable free up to 24h before)</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>Readiness gate:</strong> don't sit it until you're scoring <strong>80%+</strong> on practice exams. That score — not the calendar — is the real go signal. Slide the date if you're not there by ~14 Jul.</p>
+</blockquote>
+<h3 id="the-4-domains-memorize-these-weights">The 4 domains (memorize these weights)</h3>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Domain</th>
+<th>Weight</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Cloud Concepts</strong></td>
+<td>24%</td>
+<td>◐ in progress</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Security &amp; Compliance</strong></td>
+<td>30%</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Cloud Technology &amp; Services</strong></td>
+<td>34%</td>
+<td>◐ in progress (Compute ✅, Global infra ✅, Networking ✅)</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Billing, Pricing &amp; Support</strong></td>
+<td>12%</td>
+<td>⬜</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>Head start:</strong> <span class="wl">Networking</span> already covers VPC, subnets, security groups, Route 53 (DNS), and load balancers — a big chunk of Domain 3's networking. The hands-on VPC/subnet/peering you did transfers directly.</p>
+</blockquote>
+<hr />
+<h2 id="23-week-intensive-plan">🗓️ 2–3 week intensive plan</h2>
+<p><strong>📆 Start: Sun 28 Jun 2026 · Exam: Sat 18 Jul 2026 (20 days).</strong> Plan has 15 study days across 20 calendar days — built-in slack for rest/catch-up. Week ranges below; key milestone = practice-exam-ready by <strong>~14 Jul</strong>.</p>
+<p><strong>Week 1 (Jun 28 – Jul 4) — Concepts + Security (the foundation + the heaviest domain)</strong>
+- [x] Day 1 — Cloud Concepts: what cloud is, 6 advantages, IaaS/PaaS/SaaS, deployment models, Well-Architected
+- [ ] Day 2 — AWS Global Infrastructure (Regions / AZs / Edge) + ways to access AWS (Console/CLI/SDK)
+- [ ] Day 3 — <strong>Shared Responsibility Model</strong> + AWS IAM (users, groups, roles, policies, MFA, root)
+- [ ] Day 4 — Security services (Shield, WAF, GuardDuty, Inspector, Macie, KMS, Secrets Manager)
+- [ ] Day 5 — Compliance &amp; governance (Artifact, Config, CloudTrail, Organizations/SCPs)
+- [ ] Day 6 — Review Domains 1–2 + practice questions</p>
+<p><strong>Week 2 (Jul 5 – Jul 11) — Core Services + Billing</strong>
+- [ ] Day 7 — Compute (EC2 + instance/pricing types, ELB, Auto Scaling, Lambda, ECS/EKS/Fargate, Beanstalk, Lightsail)
+- [ ] Day 8 — Storage (S3 + classes, EBS, EFS, FSx, Storage Gateway, Snow family)
+- [ ] Day 9 — Networking (VPC ✅, Route 53, CloudFront, Direct Connect, VPN) + Databases (RDS, Aurora, DynamoDB, Redshift, ElastiCache)
+- [ ] Day 10 — Management &amp; monitoring (CloudWatch, CloudTrail, CloudFormation, Trusted Advisor, Systems Manager) + integration (SNS, SQS)
+- [ ] Day 11 — Billing, Pricing &amp; Support (pricing models, Free Tier, Cost Explorer, Budgets, Organizations, support plans)
+- [ ] Day 12 — Review Domains 3–4 + practice questions</p>
+<p><strong>Week 3 (Jul 12 – Jul 17) — Exam readiness (buffer)</strong>
+- [ ] Day 13 — Full practice exam #1 → review weak areas
+- [ ] Day 14 (~Jul 14) — Full practice exam #2 → <strong>must be hitting 80%+ here</strong>
+- [ ] Day 15 (Jul 15–17) — Final cheat-sheet review</p>
+<p><strong>🎯 Sat 18 Jul 2026 — SIT THE EXAM</strong></p>
+<hr />
+<h2 id="domain-1-cloud-concepts-24">Domain 1 — Cloud Concepts (24%)</h2>
+<h3 id="what-is-cloud-computing">What is cloud computing?</h3>
+<p><strong>On-demand delivery of IT resources (compute, storage, databases, networking) over the internet, with pay-as-you-go pricing.</strong> Instead of buying, owning, and maintaining physical servers and data centers, you rent them from a provider (AWS) and pay only for what you use.</p>
+<ul>
+<li><strong>Provision in minutes</strong>, not weeks of procurement.</li>
+<li><strong>Pay-as-you-go</strong> — like electricity: use it, pay for it; stop, stop paying.</li>
+<li>AWS owns/operates the hardware; you consume it as a service.</li>
+</ul>
+<h3 id="clientserver-model-module-1-basics">Client–server model (Module 1 basics)</h3>
+<ul>
+<li><strong>Client</strong> = a web browser or app a person interacts with. <strong>Server</strong> = e.g. an <strong>Amazon EC2</strong> instance.</li>
+<li>Flow: client makes a <strong>request</strong> → server <strong>evaluates</strong> → server <strong>responds</strong>. This is the basic shape of how AWS services communicate.</li>
+<li><em>Exam tip:</em> don't confuse <strong>deployment models</strong> (cloud / hybrid / on-prem = <em>where it runs</em>) with <strong>service models</strong> (IaaS / PaaS / SaaS = <em>who manages what</em>) — different axes, both tested.</li>
+</ul>
+<h3 id="the-6-advantages-of-cloud-awss-official-list-common-exam-q">The 6 advantages of cloud (AWS's official list — common exam Q)</h3>
+<ol>
+<li><strong>Trade capital expense for variable expense</strong> — no big upfront server purchase (CapEx → OpEx); pay as you consume.</li>
+<li><strong>Benefit from massive economies of scale</strong> — AWS's huge scale → lower pay-as-you-go prices than you'd get alone.</li>
+<li><strong>Stop guessing capacity</strong> — scale up/down on demand; no over- or under-provisioning.</li>
+<li><strong>Increase speed and agility</strong> — new resources in minutes → experiment and ship faster.</li>
+<li><strong>Stop spending money running and maintaining data centers</strong> — focus on your product, not racking servers.</li>
+<li><strong>Go global in minutes</strong> — deploy across AWS Regions worldwide to be close to users.</li>
+</ol>
+<blockquote>
+<p><strong>Mnemonic — "Very Easy Cloud Saves Data Globally":</strong> <strong>V</strong>ariable expense · <strong>E</strong>conomies of scale · <strong>C</strong>apacity (stop guessing) · <strong>S</strong>peed/agility · <strong>D</strong>ata centers (stop maintaining) · <strong>G</strong>lobal in minutes. <em>Don't confuse these 6 advantages of cloud with the 6 Well-Architected pillars (O-S-R-P-C-S) — different list, both tested.</em></p>
+</blockquote>
+<h3 id="cloud-service-models-who-manages-what">Cloud service models — <em>who manages what</em></h3>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Model</th>
+<th>What it is</th>
+<th>You manage</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>IaaS</strong> (Infrastructure)</td>
+<td>Raw building blocks (VMs, storage, network)</td>
+<td>OS, runtime, app, data</td>
+<td>EC2, VPC, EBS</td>
+</tr>
+<tr>
+<td><strong>PaaS</strong> (Platform)</td>
+<td>Managed platform to run apps</td>
+<td>Just your app + data</td>
+<td>Elastic Beanstalk, RDS, Lambda</td>
+</tr>
+<tr>
+<td><strong>SaaS</strong> (Software)</td>
+<td>Finished software, ready to use</td>
+<td>Nothing (just use it)</td>
+<td>Gmail, Salesforce, Dropbox</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p>Mnemonic: IaaS = you get the <em>kitchen</em>, PaaS = you get the <em>kitchen + appliances</em>, SaaS = you get the <em>meal</em>.</p>
+</blockquote>
+<h3 id="cloud-deployment-models">Cloud deployment models</h3>
+<ul>
+<li><strong>Cloud (public)</strong> — everything runs in the cloud (AWS). Most common for new apps.</li>
+<li><strong>Hybrid</strong> — mix of cloud + on-premises (e.g. keep a legacy DB on-prem, run the app in AWS). Connected via VPN/Direct Connect.</li>
+<li><strong>On-premises / private cloud</strong> — run in your own data center (sometimes with cloud-like tooling). Full control, full cost/maintenance.</li>
+</ul>
+<h3 id="cloud-economics">Cloud economics</h3>
+<ul>
+<li><strong>CapEx vs OpEx</strong> — cloud shifts big upfront capital spend (CapEx) to ongoing operating spend (OpEx) you only pay for what you use.</li>
+<li><strong>Economies of scale</strong> — AWS buys hardware at massive volume → cheaper per unit → passed to you.</li>
+<li><strong>TCO (Total Cost of Ownership)</strong> — cloud often lowers TCO (no data-center real estate, power, cooling, hardware refresh, ops staff).</li>
+</ul>
+<h3 id="aws-well-architected-framework-the-6-pillars">AWS Well-Architected Framework — the <strong>6 pillars</strong></h3>
+<p>Best-practice guidance for building on AWS (exam loves these):
+1. <strong>Operational Excellence</strong> — run &amp; monitor systems, improve processes
+2. <strong>Security</strong> — protect data &amp; systems
+3. <strong>Reliability</strong> — recover from failure, scale to meet demand
+4. <strong>Performance Efficiency</strong> — use resources efficiently as needs change
+5. <strong>Cost Optimization</strong> — avoid unnecessary cost
+6. <strong>Sustainability</strong> — minimize environmental impact</p>
+<blockquote>
+<p>Mnemonic: <strong>"O-S-R-P-C-S"</strong> → <em>Operational, Security, Reliability, Performance, Cost, Sustainability.</em></p>
+</blockquote>
+<hr />
+<h2 id="domain-2-security-compliance-30">Domain 2 — Security &amp; Compliance (30%)</h2>
+<!-- Day 3-5. Shared Responsibility Model (AWS = security OF the cloud; you = security IN the cloud). IAM: users/groups/roles/policies, MFA, root account best practices, least privilege. Security svcs: Shield (DDoS), WAF (L7), GuardDuty, Inspector, Macie, KMS, Secrets Manager, Cognito. Compliance: Artifact, Config, CloudTrail, Organizations/SCPs. -->
+
+<h2 id="domain-3-cloud-technology-services-34">Domain 3 — Cloud Technology &amp; Services (34%)</h2>
+<h3 id="compute-skill-builder-module-2-done-29-jun-2026">Compute — Skill Builder Module 2 ✅ <em>(done 29 Jun 2026)</em></h3>
+<p><strong>Amazon EC2</strong> — resizable virtual servers ("instances") in the cloud; you choose OS, instance size, and networking.
+- <strong>Tenancy:</strong> default is <strong>shared / multi-tenant</strong> — instances from many AWS customers share the same physical hardware, kept isolated by the <strong>Nitro hypervisor</strong>. This sharing → <em>economies of scale</em> → low, pay-as-you-go cost.
+- Pay more for single-tenant when compliance/licensing demands it: <strong>Dedicated Instances</strong> (hardware isolated to your account) or <strong>Dedicated Hosts</strong> (a whole physical server you control — for BYOL per-socket/core licensing).</p>
+<p><strong>Instance families</strong> (match the instance to the workload):
+- <strong>General purpose</strong> — balanced (web servers, small DBs)
+- <strong>Compute optimized</strong> — CPU-heavy (batch, gaming, HPC)
+- <strong>Memory optimized</strong> — large in-memory work (big DBs, caches)
+- <strong>Storage optimized</strong> — high disk throughput (data warehousing)
+- <strong>Accelerated computing</strong> — GPUs (ML, graphics)</p>
+<p><strong>EC2 pricing models</strong> (heavily tested):
+| Model | What | Best for |
+|---|---|---|
+| <strong>On-Demand</strong> | Pay per second/hour, no commit | Spiky / short / unpredictable; default |
+| <strong>Reserved Instances (RI)</strong> | 1- or 3-yr commit → big discount | Steady, predictable usage |
+| <strong>Savings Plans</strong> | Commit to $/hr for 1–3 yrs → discount, more flexible than RIs | Predictable spend, want flexibility |
+| <strong>Spot Instances</strong> | Up to ~90% off unused capacity; AWS can reclaim w/ 2-min notice | Fault-tolerant, flexible (batch, CI) |
+| <strong>Dedicated Hosts</strong> | Whole physical server for you | Licensing / compliance |</p>
+<p><strong>EC2 Auto Scaling</strong> — automatically adds/removes instances to match demand = <strong>elasticity</strong> (dynamic + predictive scaling).
+<strong>Elastic Load Balancing (ELB)</strong> — distributes incoming traffic across instances/targets → <strong>high availability + fault tolerance</strong>; single regional point of contact. Pairs with Auto Scaling.</p>
+<p><strong>Messaging &amp; queuing</strong> (decouple components → monolith to microservices):
+- <strong>Amazon SQS</strong> (Simple Queue Service) — messages sit in a <strong>queue</strong> until a consumer pulls + processes them; sender/receiver decoupled, nothing lost if consumer is busy. <strong>Pull</strong>-based.
+- <strong>Amazon SNS</strong> (Simple Notification Service) — <strong>pub/sub</strong>: publish to a <strong>topic</strong> → fan-out to many subscribers (email, SMS, Lambda, SQS). <strong>Push</strong>-based.</p>
+<p><strong>Serverless — AWS Lambda</strong> — run code with <strong>no servers to manage</strong>; event-driven; pay only for compute time used; 15-min max per invocation.</p>
+<p><strong>Containers:</strong> <strong>Amazon ECS</strong> (AWS container orchestration) · <strong>Amazon EKS</strong> (managed Kubernetes) · <strong>AWS Fargate</strong> (<strong>serverless</strong> engine — run containers without managing the EC2 hosts).</p>
+<blockquote>
+<p><strong>Exam framing:</strong> EC2 = <em>you</em> manage the server; <strong>Lambda / Fargate = serverless</strong> (AWS manages it). <strong>Spot</strong> = cheapest but interruptible; <strong>RI / Savings Plans</strong> = commit for a discount. <strong>SQS = queue (pull)</strong>, <strong>SNS = pub/sub (push)</strong>.</p>
+</blockquote>
+<h4 id="serverless-additional-compute-module-3-exploring-compute-services-done-29-jun-2026">Serverless &amp; additional compute — Module 3 (Exploring Compute Services) ✅ <em>(done — 29 Jun 2026)</em></h4>
+<p><strong>Serverless</strong> = run code without provisioning/managing servers; AWS handles provisioning, scaling, patching, availability. Wins: no server mgmt, auto-scaling, <strong>pay only when running</strong>, built-in HA.
+<strong>Compute spectrum (most control → least mgmt):</strong> EC2 → Containers on EC2 (ECS/EKS) → Fargate/Lambda (serverless).</p>
+<ul>
+<li><strong>AWS Lambda</strong> — event-driven (S3/API Gateway/SQS/schedule triggers); pay per request + ms duration, <strong>$0 when idle</strong>; auto-scales; <strong>15-min max</strong> per run → short tasks only.</li>
+<li><strong>Containers</strong> — app + dependencies packaged (Docker); share host OS kernel → lighter/faster than VMs. <strong>Orchestration</strong> = managing many at scale. <strong>ECS</strong> (AWS-native) · <strong>EKS</strong> (managed Kubernetes) · <strong>Fargate</strong> (serverless — no EC2 hosts to manage) · <strong>ECR</strong> (image registry).</li>
+<li><strong>Additional compute:</strong></li>
+<li><strong>Elastic Beanstalk</strong> — PaaS; upload web app code → auto provisioning/LB/scaling/health, you still see resources. Fast web-app deploy.</li>
+<li><strong>Amazon Lightsail</strong> — simplest, low bundled-price VPS for simple sites/small apps/learning.</li>
+<li><strong>AWS Batch</strong> — run large batch computing jobs.</li>
+<li><strong>AWS Outposts</strong> — AWS infrastructure on-premises (hybrid).</li>
+</ul>
+<blockquote>
+<p><strong>Pick-the-compute:</strong> full OS control → EC2 · fast web app, AWS-managed scaling → Beanstalk · simple cheap site → Lightsail · orchestrate containers → ECS/EKS (+Fargate to skip servers) · short event-driven code → Lambda.</p>
+</blockquote>
+<h3 id="global-infrastructure-module-4-going-global-done-29-jun-2026">Global Infrastructure — Module 4 (Going Global) ✅ <em>(done 29 Jun 2026)</em></h3>
+<p><strong>Hierarchy:</strong> <strong>Region</strong> (geographic area) → contains multiple <strong>Availability Zones (AZs)</strong> (clusters of data centers) → <strong>Edge Locations</strong> (many more, separate sites, for caching/CDN).</p>
+<ul>
+<li><strong>Regions</strong> — isolated geographic areas; <strong>data stays in a Region</strong> unless you move it (key for compliance / data residency). <strong>Choosing a Region — 4 factors:</strong> ① <strong>Compliance</strong> (legal/data-governance) ② <strong>Proximity/latency</strong> (close to users) ③ <strong>Service/feature availability</strong> (not every service is in every Region) ④ <strong>Pricing</strong> (varies by Region).</li>
+<li><strong>Availability Zones (AZs)</strong> — one+ discrete data centers with redundant power/networking; isolated from other AZs' failures but linked by low-latency fiber. <strong>Best practice: deploy across ≥2 AZs → high availability / fault tolerance.</strong></li>
+<li><strong>Edge Locations</strong> — many worldwide sites that cache content close to users; used by <strong>Amazon CloudFront</strong>, Route 53, Global Accelerator.</li>
+<li><strong>Amazon CloudFront</strong> — <strong>CDN</strong>: caches content at edge locations near users → faster delivery, lower latency.</li>
+<li><strong>AWS Local Zones</strong> — push compute/storage closer to users when no Region is near enough (latency-sensitive apps).</li>
+<li><strong>AWS Wavelength</strong> — embed compute/storage in <strong>5G</strong> networks for ultra-low latency to mobile users.</li>
+<li><strong>AWS Outposts</strong> — run AWS infrastructure in <strong>your own data center</strong> (hybrid; extends a Region on-prem).</li>
+</ul>
+<blockquote>
+<p><strong>Exam framing:</strong> AZ = data center(s) → use <strong>multi-AZ</strong> for HA. <strong>Region choice = compliance · latency · service availability · price.</strong> <strong>CloudFront + Edge locations = cache content near users.</strong> Data residency/compliance → Region isolation.</p>
+</blockquote>
+<h3 id="networking-skill-builder-module-5-done-30-jun-2026">Networking — Skill Builder Module 5 ✅ <em>(done 30 Jun 2026)</em></h3>
+<p><strong>Big head start:</strong> <span class="wl">Networking</span> already covers VPC, public/private subnets, route tables, Internet Gateway, NAT Gateway, VPC peering, DNS mechanics, and load balancers. The genuinely <em>new, exam-critical</em> pieces are: the <strong>VPC connectivity menu</strong> (IGW vs VPN/VGW vs Direct Connect), the precise <strong>Security Group vs NACL</strong> distinction, <strong>Route 53</strong> as a service, and <strong>Global Accelerator</strong>.</p>
+<p><strong>Amazon VPC</strong> — your own isolated, private virtual network inside AWS. Define its IP range with a <strong>CIDR block</strong> (e.g. <code>10.0.0.0/16</code>). <strong>Regional</strong> (spans the AZs of one Region). Carved into <strong>subnets</strong> (each in <strong>one AZ</strong>): <strong>public</strong> (has a route to an Internet Gateway) and <strong>private</strong> (no direct internet route — databases/app servers).</p>
+<h4 id="how-traffic-gets-in-out-the-connectivity-menu-the-1-tested-networking-concept">How traffic gets in &amp; out — the connectivity menu <em>(the #1 tested networking concept)</em></h4>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Path</th>
+<th>What it is</th>
+<th>Over the internet?</th>
+<th>Use it for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Internet Gateway (IGW)</strong></td>
+<td>The VPC's door to the <strong>public internet</strong>; public subnets route <code>0.0.0.0/0</code> → IGW</td>
+<td>Yes (public)</td>
+<td>Public-facing apps, web servers, load balancers</td>
+</tr>
+<tr>
+<td><strong>Virtual Private Gateway (VGW) + Site-to-Site VPN</strong></td>
+<td>The AWS end of an <strong>encrypted VPN tunnel</strong> between on-prem and the VPC</td>
+<td>Yes, but <strong>encrypted</strong></td>
+<td>Quick, cheap hybrid link</td>
+</tr>
+<tr>
+<td><strong>AWS Direct Connect (DX)</strong></td>
+<td>A <strong>dedicated private physical fibre line</strong> from your data center to AWS — <strong>bypasses the public internet</strong></td>
+<td><strong>No</strong> (private)</td>
+<td>Consistent low latency, high bandwidth, large/sensitive data, compliance</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>Exam trap:</strong> <strong>VPN = encrypted tunnel over the <em>public</em> internet</strong> (fast to set up, cheap). <strong>Direct Connect = your own <em>private</em> physical cable</strong> (consistent, high-throughput, more expensive, weeks to provision). Both link <strong>on-prem ↔ AWS</strong>. <strong>IGW</strong> is for <em>public</em> internet traffic into the VPC.
+Memory hook: <strong>IGW = public door · VPN = encrypted tunnel over the internet · Direct Connect = private dedicated cable, no internet.</strong>
+🔐 Full VPN mechanics (tunneling/encapsulation, IPsec, IKE phases, ESP, AWS CGW/VGW, two-tunnel HA): <span class="wl">VPN</span>.</p>
+</blockquote>
+<p>Also recognize by name (common distractors): <strong>Transit Gateway</strong> = hub-and-spoke router connecting many VPCs + on-prem in one place; <strong>VPC Endpoints / PrivateLink</strong> = reach AWS services privately without going over the internet.</p>
+<h4 id="securing-the-vpc-security-groups-vs-network-acls-heavily-tested">Securing the VPC — Security Groups vs Network ACLs <em>(heavily tested)</em></h4>
+<p>Packet path inward: <strong>internet → IGW → subnet's NACL (border guard) → instance's Security Group (bouncer) → EC2.</strong></p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th><strong>Security Group</strong></th>
+<th><strong>Network ACL (NACL)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Operates at</td>
+<td><strong>Instance</strong> level (the ENI)</td>
+<td><strong>Subnet</strong> level</td>
+</tr>
+<tr>
+<td>State</td>
+<td><strong>Stateful</strong> — return traffic auto-allowed</td>
+<td><strong>Stateless</strong> — must allow return traffic explicitly</td>
+</tr>
+<tr>
+<td>Rule types</td>
+<td><strong>Allow only</strong> (everything else implicitly denied)</td>
+<td><strong>Allow <em>and</em> Deny</strong></td>
+</tr>
+<tr>
+<td>Evaluation</td>
+<td>All rules evaluated together</td>
+<td>Rules checked in <strong>number order — first match wins</strong></td>
+</tr>
+<tr>
+<td>Default</td>
+<td>Denies all inbound, allows all outbound</td>
+<td><em>Default</em> NACL allows all; <em>custom</em> NACL denies all until you add rules</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>Exam framing:</strong> <strong>Stateful = Security Group</strong> (you only think about one direction; the reply is automatically allowed). <strong>Stateless = NACL</strong> (must allow inbound <em>and</em> the outbound return on ephemeral ports). Need to <strong>explicitly DENY/block a specific IP?</strong> → <strong>NACL</strong> (SGs can't deny). SG is the default instance firewall; NACL is an optional extra subnet-wide layer.
+Memory hook: <strong>S</strong>ecurity Group = <strong>S</strong>tateful · NA<strong>C</strong>L = <strong>C</strong>an say no (deny) + has no memory (stateless).</p>
+</blockquote>
+<h4 id="amazon-route-53-awss-dns">Amazon Route 53 — AWS's DNS</h4>
+<ul>
+<li>Highly available, scalable <strong>DNS</strong> web service: names → IPs (the "phonebook" from <span class="wl">Networking</span> §7, as a managed AWS service).</li>
+<li>Also a <strong>domain registrar</strong> — register/buy domain names directly.</li>
+<li>Routes users to AWS resources (<strong>ELB, CloudFront, S3 static sites</strong>) and on-prem endpoints; integrates with <strong>health checks</strong>.</li>
+<li><strong>Routing policies</strong> (know they exist + the headline ones):</li>
+<li><strong>Simple</strong> — one record, one resource.</li>
+<li><strong>Weighted</strong> — split traffic by % across endpoints (A/B testing, canary).</li>
+<li><strong>Latency-based</strong> — send users to the Region with the <strong>lowest latency</strong>.</li>
+<li><strong>Geolocation</strong> — route by the <strong>user's physical location</strong>.</li>
+<li><strong>Geoproximity</strong> — route by distance between user and resources.</li>
+<li><strong>Failover</strong> — send to a <strong>backup</strong> if the primary fails (disaster recovery).</li>
+<li><strong>Multivalue answer</strong> — return several healthy IPs.</li>
+<li>Classic combo: <strong>Route 53 + CloudFront</strong> for fast, global, highly available delivery.</li>
+</ul>
+<h4 id="edge-global-delivery">Edge / global delivery</h4>
+<ul>
+<li><strong>Amazon CloudFront</strong> (Module 4 ✅) — <strong>CDN</strong>; <strong>caches</strong> content at <strong>edge locations</strong> near users → low latency; absorbs spikes &amp; adds DDoS protection (with AWS Shield). HTTP/HTTPS content.</li>
+<li><strong>AWS Global Accelerator</strong> — improves availability/performance by routing traffic over the <strong>AWS global backbone</strong> to the nearest edge, then to your app. Gives <strong>static anycast IPs</strong> + fast failover. <strong>Does <em>not</em> cache.</strong></li>
+</ul>
+<blockquote>
+<p><strong>CloudFront vs Global Accelerator (exam trap):</strong> <strong>CloudFront = caches content</strong> at the edge (static + dynamic web content, HTTP/HTTPS). <strong>Global Accelerator = no caching</strong> — it speeds up and adds static IPs for <strong>TCP/UDP</strong> apps (gaming, IoT, VoIP, APIs) by routing over AWS's private backbone, not the public internet.</p>
+<p><strong>Module 5 exam-day recap:</strong> VPC = isolated network (CIDR, regional) → subnets (one AZ each; public has IGW route). <strong>Into the VPC:</strong> IGW (public) · VPN over VGW (encrypted, public internet) · Direct Connect (private dedicated line). <strong>Firewalls:</strong> Security Group = stateful, allow-only, instance level · NACL = stateless, allow+deny, subnet level. <strong>Route 53 = DNS + registrar + routing policies. CloudFront = caches at edge; Global Accelerator = routes over backbone, no cache.</strong></p>
+</blockquote>
+<h3 id="storage-skill-builder-module-6-in-progress-30-jun-2026">Storage — Skill Builder Module 6 ◐ <em>(in progress — 30 Jun 2026)</em></h3>
+<p><strong>Master key — there are only 3 types of storage; every service maps to one.</strong> <em>(Don't memorize 12 services — learn 3 ideas.)</em></p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Type</th>
+<th>What it really is</th>
+<th>Analogy</th>
+<th>AWS service</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Block</strong></td>
+<td>Raw disk cut into blocks; OS puts a filesystem on top; attaches to <strong>one</strong> machine</td>
+<td>A hard drive/SSD in <strong>one</strong> computer</td>
+<td><strong>Amazon EBS</strong></td>
+</tr>
+<tr>
+<td><strong>File</strong></td>
+<td>Files in folders over a network protocol (NFS/SMB); <strong>many</strong> machines mount at once</td>
+<td>A shared <strong>team network drive</strong></td>
+<td><strong>Amazon EFS</strong> (Linux/NFS), <strong>Amazon FSx</strong> (Windows/specialized)</td>
+</tr>
+<tr>
+<td><strong>Object</strong></td>
+<td>Whole objects (data + metadata + ID) in a flat pool, via <strong>URL/API</strong>; infinite scale</td>
+<td>A <strong>valet locker</strong> — hand over the object, get a URL ticket</td>
+<td><strong>Amazon S3</strong></td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>The one-liner:</strong> <strong>EBS = a disk for one server · EFS/FSx = a shared drive for many · S3 = a web locker for anything.</strong></p>
+</blockquote>
+<h4 id="ebs-vs-efs-the-classic-trick-question">EBS vs EFS — the classic trick question</h4>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th><strong>EBS</strong> (block)</th>
+<th><strong>EFS</strong> (file)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Attaches to</td>
+<td><strong>One</strong> EC2 instance</td>
+<td><strong>Many</strong> EC2s at once</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td><strong>One AZ</strong></td>
+<td><strong>Regional</strong> (spans AZs)</td>
+</tr>
+<tr>
+<td>Sizing</td>
+<td>You pick the size</td>
+<td><strong>Auto-scales</strong> elastically</td>
+</tr>
+<tr>
+<td>Model</td>
+<td>The instance's hard drive</td>
+<td>A shared NFS drive</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p>Hook: <strong>E<em>B</em>S = one <em>B</em>ox · E<em>F</em>S = <em>F</em>leet (shared by many).</strong> (EBS also: persists independently of the instance; <strong>snapshots</strong> are point-in-time backups stored in S3. <em>Instance store</em> = ephemeral, lost on stop — don't confuse with EBS.)</p>
+</blockquote>
+<h4 id="amazon-s3-the-heavy-hitter-most-tested-service-on-the-exam">Amazon S3 — the heavy hitter (most-tested service on the exam)</h4>
+<p>Object storage: <strong>unlimited</strong>, <strong>11 9's durability</strong>, reached by <strong>URL/API</strong>, auto-stored across <strong>multiple AZs</strong> in a Region. Uses: backups, static websites, data lakes, media, app assets.</p>
+<blockquote>
+<p>🪣 <strong>Want the <em>why</em> behind every storage class</strong> (the cost-dial model, durability-vs-availability, the 3 classic confusions): <span class="wl">S3</span> deep-dive.</p>
+</blockquote>
+<p><strong>Storage classes — picture a kitchen</strong> (don't rote-learn the list):
+| Class | Kitchen analogy | When |
+|---|---|---|
+| <strong>S3 Standard</strong> | Food on the <strong>counter</strong> | Frequent access, default |
+| <strong>S3 Intelligent-Tiering</strong> | <strong>Smart fridge</strong> that moves food for you | Access pattern unknown/changing — set &amp; forget |
+| <strong>S3 Standard-IA</strong> | The <strong>pantry</strong> | Rare access, instant when needed (retrieval fee) |
+| <strong>S3 One Zone-IA</strong> | Pantry in <strong>one room only</strong> | Same, but lives in 1 AZ (cheaper, reproducible data) |
+| <strong>S3 Glacier Instant Retrieval</strong> | <strong>Freezer</strong>, instant grab | Archive needed in milliseconds |
+| <strong>S3 Glacier Flexible Retrieval</strong> | <strong>Freezer</strong> (thaw minutes–hours) | Archive, can wait a bit |
+| <strong>S3 Glacier Deep Archive</strong> | <strong>Deep freezer in the basement</strong> | Cheapest, retrieve in hours; compliance/long-term |</p>
+<blockquote>
+<p>Pattern: <strong>counter → pantry → freezer = more access ÷ less cost.</strong> Less access + slower retrieval = cheaper.
+<strong>Lifecycle policy</strong> = rules that auto-move objects over time (Standard → IA → Glacier → delete). Exam cue: <em>"automatically move old data to cheaper storage"</em> → <strong>lifecycle policy</strong>.</p>
+</blockquote>
+<p><strong>Exam trigger words → class</strong> (learn the triggers, not the list — the two starred ones trip people up most):
+| Question says... | Class |
+|---|---|
+| "frequently accessed" / default | <strong>S3 Standard</strong> |
+| ⭐ <strong>"unknown / changing / unpredictable"</strong> access + <strong>"automatic"</strong> cost optimization | <strong>S3 Intelligent-Tiering</strong> |
+| ⭐ <strong>"infrequently accessed"</strong> but <strong>"available immediately / rapid"</strong> | <strong>S3 Standard-IA</strong> |
+| infrequent <strong>+ "can tolerate"</strong> single-AZ loss / "reproducible" / non-critical | <strong>S3 One Zone-IA</strong> |
+| <strong>"archive" / "long-term" / "rarely"</strong> + retrieval-time tolerance | <strong>S3 Glacier</strong> (ms→Instant · min–hrs→Flexible · hrs + cheapest + compliance→Deep Archive) |</p>
+<h4 id="moving-big-data-hybrid-transfer-cluster">Moving big data — hybrid + transfer cluster</h4>
+<ul>
+<li><strong>AWS Storage Gateway</strong> — bridges <strong>on-prem</strong> apps to AWS storage (hybrid); local access continues while data backs to AWS. A gateway appliance (VM/hardware) on-prem <strong>caches hot data locally</strong> for low latency + syncs to AWS in the background, so apps keep their normal protocols and don't know the data went to the cloud.</li>
+<li><strong>Pick the type by the interface your on-prem app speaks</strong> (maps back to the 3 storage types): <strong>S3 File Gateway</strong> (NFS/SMB → objects in <strong>S3</strong>) · <strong>FSx File Gateway</strong> (SMB → <strong>Amazon FSx for Windows</strong>) · <strong>Tape Gateway</strong> (backup software / VTL → <strong>S3 + Glacier/Deep Archive</strong>, replaces physical tape) · <strong>Volume Gateway</strong> (iSCSI block → <strong>S3 + EBS snapshots</strong>). Families = <strong>File / Tape / Volume</strong>.</li>
+<li><strong>Volume Gateway modes:</strong> <strong>Cached</strong> = primary data in AWS, only hot data cached on-prem · <strong>Stored</strong> = entire dataset on-prem, async backups to AWS as EBS snapshots. Hook: <em>Cached = primary in cloud · Stored = primary on-prem, cloud is backup.</em></li>
+<li><strong>Exam-level takeaway:</strong> trigger = <em>"keep using the on-prem app but store/back up data in AWS"</em> → <strong>Storage Gateway</strong>. The 4 types + 2 modes are nice-to-know, not heavily tested — don't over-study them.</li>
+<li><strong>AWS Backup</strong> — one central place to back up across many AWS services.</li>
+<li><strong>AWS Snow Family</strong> — physically <strong>ship</strong> data when the network is too slow: <strong>Snowcone</strong> (smallest, portable) → <strong>Snowball Edge</strong> (suitcase, TBs–PBs, + compute) → <strong>Snowmobile</strong> (a literal truck, exabytes). Hook: <strong>cone &lt; ball &lt; mobile = small &lt; medium &lt; gigantic.</strong></li>
+</ul>
+<blockquote>
+<p><strong>Module 6 on one screen:</strong> 3 types — EBS (disk for one server) · EFS/FSx (shared drive for many) · S3 (web locker). EBS vs EFS = one box vs a fleet. S3 classes = counter→pantry→freezer (access ÷ cost); <strong>lifecycle</strong> auto-moves them. <strong>Snow</strong> ships data physically (cone &lt; ball &lt; mobile).</p>
+</blockquote>
+<!-- Still to cover (Modules 7–8, 10): Databases (RDS, Aurora, DynamoDB, Redshift, ElastiCache), AI/ML & analytics, Mgmt/monitoring (CloudWatch, CloudTrail, CloudFormation, Trusted Advisor). Ways to access: Console, CLI, SDK, IaC. -->
+
+<h2 id="domain-4-billing-pricing-support-12">Domain 4 — Billing, Pricing &amp; Support (12%)</h2>
+<!-- Day 11. Pricing models (On-Demand, Reserved, Spot, Savings Plans, Dedicated). Free Tier (always-free / 12-month / trials). Cost tools: Cost Explorer, Budgets, Cost & Usage Report, Pricing Calculator. Organizations + consolidated billing. Support plans (Basic/Developer/Business/Enterprise) + Trusted Advisor checks. -->
+
+<hr />
+<h2 id="resources-curated">📎 Resources (curated)</h2>
+<p><strong>🥇 Practice exams — the #1 thing for passing (drill to 80%+ before booking):</strong>
+- <strong>Tutorials Dojo (Jon Bonso)</strong> practice exams — <em>the</em> gold standard for AWS certs. Realistic difficulty + excellent explanations. Udemy / tutorialsdojo.com. <strong>Buy this even if nothing else (~$15).</strong>
+- AWS Skill Builder <strong>official practice exam</strong> (free) — final confidence check.</p>
+<p><strong>📚 Main course — pick ONE (reinforces Claude's teaching):</strong>
+- <strong>Stephane Maarek</strong> "Ultimate AWS CCP CLF-C02" (Udemy, ~$15) — most popular, polished, exam-focused.
+- <strong>Adrian Cantrill</strong> Cloud Practitioner (cantrill.io) — <strong>free</strong>, deeper "why."
+- <strong>Andrew Brown / ExamPro</strong> full CCP course (freeCodeCamp YouTube) — <strong>free</strong>, one ~13h video.</p>
+<p><strong>🆓 Official AWS (free — do regardless):</strong>
+- <strong>AWS Skill Builder</strong> → "AWS Cloud Practitioner Essentials" course + official practice question set.
+- <strong>Official Exam Guide + sample questions</strong> (AWS Certification page) — exactly what's tested.
+- Whitepapers: "Overview of AWS", "AWS Well-Architected Framework", "How AWS Pricing Works".</p>
+<p><strong>📝 Final-week review:</strong>
+- <strong>Tutorials Dojo cheat sheets</strong> (free) — concise per-service summaries. Great for Days 13–15.</p>
+<blockquote>
+<p><strong>My stack for this 2–3 wk intensive:</strong> Claude + these notes (primary) → one free course (ExamPro/Cantrill) for reinforcement → <strong>Tutorials Dojo practice exams</strong> (Days 13–15, make-or-break) → AWS official practice exam (final check). Can be done 100% free, but Tutorials Dojo practice exams are the highest-ROI paid item.</p>
+</blockquote>
+<hr />
+<h2 id="source">Source</h2>
+<p>Mapped to the <strong>CLF-C02</strong> exam guide (4 domains). Part of the broader DevOps journey — overlaps UDAAN Week 10 (Cloud). Full curriculum: <span class="wl">Syllabus</span>.</p>
+  </div>
+  <footer>Rendered from notes/AWS-Cloud-Practitioner.md &middot; AWS CLF-C02 study workspace</footer>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🪣 Amazon S3 & Storage Classes — Deep Dive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-display:'Fraunces',Georgia,serif; --font-body:'IBM Plex Sans',system-ui,sans-serif; --font-mono:'IBM Plex Mono','SF Mono',Consolas,monospace;
+    --bg:#f5f1e8; --surface:#fffdf7; --surface2:#efe9da; --border:rgba(30,40,60,0.10); --border-bright:rgba(30,40,60,0.20);
+    --text:#20283a; --text-dim:#5f6b80; --accent:#1e3a5f; --accent-dim:rgba(30,58,95,0.08);
+    --gold:#9a6b15; --gold-dim:rgba(154,107,21,0.11); --green:#4d7c2f; --teal:#0e7490;
+  }
+  @media (prefers-color-scheme: dark){ :root{
+    --bg:#12161d; --surface:#1a1f29; --surface2:#222937; --border:rgba(255,255,255,0.08); --border-bright:rgba(255,255,255,0.17);
+    --text:#e9e6dd; --text-dim:#9aa3b4; --accent:#7aa7d6; --accent-dim:rgba(122,167,214,0.14);
+    --gold:#d9af52; --gold-dim:rgba(217,175,82,0.14); --green:#93c167; --teal:#4cc4d6;
+  }}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{ background:var(--bg); background-image:radial-gradient(ellipse at 12% 0%,var(--accent-dim) 0%,transparent 42%); background-attachment:fixed;
+    color:var(--text); font-family:var(--font-body); font-size:16px; line-height:1.72; padding:48px 24px 80px; -webkit-font-smoothing:antialiased; overflow-wrap:break-word; }
+  .prose{ max-width:860px; margin:0 auto; }
+  .home{ display:inline-block; font-family:var(--font-mono); font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase;
+    color:var(--text-dim); text-decoration:none; margin-bottom:28px; padding:6px 12px; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
+  .home:hover{ color:var(--text); border-color:var(--border-bright); }
+  .prose h1{ font-family:var(--font-display); font-weight:500; font-size:clamp(30px,4.5vw,44px); line-height:1.1; letter-spacing:-0.5px; margin:6px 0 22px; }
+  .prose h2{ font-family:var(--font-display); font-weight:500; font-size:27px; line-height:1.18; letter-spacing:-0.3px; margin:42px 0 14px; padding-top:18px; border-top:1px solid var(--border); }
+  .prose h3{ font-family:var(--font-display); font-weight:600; font-size:20px; margin:28px 0 10px; }
+  .prose h4{ font-family:var(--font-mono); font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1.2px; color:var(--gold); margin:22px 0 8px; }
+  .prose p{ margin:0 0 15px; }
+  .prose ul,.prose ol{ margin:0 0 15px; padding-left:24px; }
+  .prose li{ margin-bottom:6px; }
+  .prose a{ color:var(--accent); text-decoration:underline; text-underline-offset:2px; }
+  .prose strong{ color:var(--text); font-weight:700; }
+  .prose hr{ border:none; height:1px; background:var(--border); margin:32px 0; }
+  .prose code{ font-family:var(--font-mono); font-size:0.85em; background:var(--accent-dim); color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .prose pre{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px 18px; overflow-x:auto; margin:0 0 18px; }
+  .prose pre code{ background:none; color:var(--text); padding:0; font-size:13px; line-height:1.55; white-space:pre; }
+  .prose blockquote{ border-left:4px solid var(--gold); background:var(--gold-dim); border-radius:0 8px 8px 0; padding:12px 18px; margin:0 0 18px; color:var(--text); }
+  .prose blockquote p:last-child{ margin-bottom:0; }
+  .prose .wl{ color:var(--accent); font-weight:600; }
+  .table-scroll{ overflow-x:auto; border:1px solid var(--border); border-radius:12px; margin:0 0 20px; background:var(--surface); }
+  .prose table{ width:100%; border-collapse:collapse; font-size:14px; line-height:1.5; }
+  .prose th{ background:var(--surface2); font-family:var(--font-mono); font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-dim); text-align:left; padding:11px 14px; border-bottom:2px solid var(--border-bright); white-space:nowrap; }
+  .prose td{ padding:11px 14px; border-bottom:1px solid var(--border); vertical-align:top; }
+  .prose tbody tr:last-child td{ border-bottom:none; }
+  .prose tbody tr:nth-child(even){ background:var(--accent-dim); }
+  footer{ max-width:860px; margin:40px auto 0; font-family:var(--font-mono); font-size:11px; color:var(--text-dim); opacity:0.6; }
+</style>
+</head>
+<body>
+  <div class="prose">
+    <a class="home" href="../index.html">&larr; Study home</a>
+<h1 id="amazon-s3-storage-classes-deep-dive">🪣 Amazon S3 &amp; Storage Classes — Deep Dive</h1>
+<p>Proper understanding of S3 and all its storage classes for <span class="wl">AWS-Cloud-Practitioner</span> (Domain 3, Module 6). Companion to the quick kitchen-analogy version in the hub — this is the "actually understand <em>why</em>" reference.</p>
+<p>← back to <span class="wl">AWS-Cloud-Practitioner</span> · <span class="wl">Networking</span> · <span class="wl">DevOps</span></p>
+<hr />
+<h2 id="what-s3-actually-is">What S3 actually is</h2>
+<p><strong>Object storage:</strong> store <strong>objects</strong> (data + metadata + a unique <strong>key</strong>) in <strong>buckets</strong>, reached by <strong>URL/API</strong> (not mounted as a disk).
+- Stored in a <strong>Region</strong>; most classes auto-replicate across <strong>3+ AZs</strong>.
+- <strong>11 nines durability</strong> (99.999999999%) — effectively never loses data.
+- Unlimited total; single object up to <strong>5 TB</strong>. Bucket names are globally unique.
+- Uses: backups, static websites, data lakes, media, app/static assets.</p>
+<h2 id="the-one-model-a-single-cost-dial-with-3-levers">The one model — a single cost dial with 3 levers</h2>
+<p>Every class is a trade on: ① <strong>storage cost</strong> (to keep it) · ② <strong>retrieval cost + speed</strong> (to read it) · ③ <strong>availability / AZ count</strong>.</p>
+<blockquote>
+<p><strong>The deal:</strong> the <strong>less often</strong> you read it and the <strong>longer you'll wait</strong> to get it back, the <strong>cheaper</strong> AWS stores it — but the <strong>more</strong> you pay (money + time) to retrieve it.</p>
+</blockquote>
+<p>So you only ask <strong>two questions</strong>: <em>How often will I read this?</em> and <em>How fast do I need it when I do?</em></p>
+<p><strong>Key truth:</strong> all classes share the <strong>same 11-nines durability</strong> — they are NOT safer-vs-riskier. They differ on <strong>cost, retrieval speed, and availability</strong>.</p>
+<h2 id="the-classes-hot-cold">The classes, hot → cold</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Storage $</th>
+<th>Read $ / speed</th>
+<th>AZs</th>
+<th>Min keep</th>
+<th>Why it exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>S3 Standard</strong></td>
+<td>Highest</td>
+<td>Free, <strong>instant</strong></td>
+<td>3+</td>
+<td>none</td>
+<td>Active data touched constantly; free instant reads</td>
+</tr>
+<tr>
+<td><strong>S3 Intelligent-Tiering</strong></td>
+<td>Auto</td>
+<td><strong>No retrieval fees</strong>, instant</td>
+<td>3+</td>
+<td>none</td>
+<td><strong>Unknown/changing</strong> pattern — AWS monitors &amp; moves each object for a tiny fee</td>
+</tr>
+<tr>
+<td><strong>S3 Standard-IA</strong></td>
+<td>Lower</td>
+<td><strong>Pay per GB</strong>, instant</td>
+<td>3+</td>
+<td>30 days</td>
+<td><strong>Known-infrequent</strong> but needed <strong>instantly</strong></td>
+</tr>
+<tr>
+<td><strong>S3 One Zone-IA</strong></td>
+<td>~20% under Std-IA</td>
+<td>Pay per GB, instant</td>
+<td><strong>1</strong></td>
+<td>30 days</td>
+<td>Same as Std-IA but <strong>single AZ</strong> — cheaper, lost if AZ destroyed → <strong>recreatable data only</strong></td>
+</tr>
+<tr>
+<td><strong>S3 Glacier Instant Retrieval</strong></td>
+<td>Cheap</td>
+<td>Pay, <strong>instant (ms)</strong></td>
+<td>3+</td>
+<td>90 days</td>
+<td>Archive touched ~quarterly but needed in <strong>milliseconds</strong></td>
+</tr>
+<tr>
+<td><strong>S3 Glacier Flexible Retrieval</strong></td>
+<td>Cheaper</td>
+<td>Pay, <strong>minutes–hours</strong></td>
+<td>3+</td>
+<td>90 days</td>
+<td>Archive where you can <strong>wait</strong> (the classic "Glacier")</td>
+</tr>
+<tr>
+<td><strong>S3 Glacier Deep Archive</strong></td>
+<td><strong>Cheapest</strong></td>
+<td>Pay, <strong>12–48 hrs</strong></td>
+<td>3+</td>
+<td>180 days</td>
+<td>Long-term/<strong>compliance</strong> ("keep 7 yrs"); almost never read</td>
+</tr>
+</tbody>
+</table></div>
+<p>Going down: storage cheaper · retrieval pricier + slower · <strong>minimum storage period longer</strong> (so never put fast-changing data in IA/Glacier).</p>
+<h2 id="the-three-confusions-resolved">The three confusions, resolved</h2>
+<ol>
+<li><strong>Intelligent-Tiering vs Standard-IA</strong> — both = infrequent access. <strong>Std-IA = <em>you</em> know it's infrequent</strong> (accept a retrieval fee). <strong>Intelligent-Tiering = you <em>don't</em> know</strong> → AWS decides, <strong>no retrieval fees</strong>, small monitoring fee. Trigger: <em>"unknown/changing"</em> → Intelligent-Tiering; <em>"known infrequent"</em> → Standard-IA.</li>
+<li><strong>One Zone-IA vs Standard-IA</strong> — identical except AZs. Std-IA = 3+ AZs (survives AZ loss); <strong>One Zone-IA = 1 AZ</strong> (cheaper, lost if AZ dies). Trigger: <em>"can tolerate loss / recreatable / non-critical"</em> → One Zone-IA.</li>
+<li><strong>The three Glaciers</strong> — all archival; differ only by <strong>retrieval speed</strong>: Instant (ms) · Flexible (min–hrs) · Deep Archive (hrs, cheapest). The question's <strong>retrieval-time tolerance</strong> picks which.</li>
+</ol>
+<h2 id="durability-vs-availability-dont-conflate">Durability vs Availability (don't conflate)</h2>
+<ul>
+<li><strong>Durability</strong> = "will my data survive?" → <strong>all S3 = 11 nines</strong> (equally safe; One Zone's caveat is only a whole-AZ destruction).</li>
+<li><strong>Availability</strong> = "can I reach it right now?" → <strong>drops as you go colder</strong> (Standard ~99.99% → One Zone ~99.5% → Glacier needs a restore). Cheaper classes trade away <strong>availability, not durability</strong>.</li>
+</ul>
+<h2 id="lifecycle-policies">Lifecycle policies</h2>
+<p>Rules that slide objects <strong>down the dial as they age</strong> — e.g. <code>Standard (0–30d) → Standard-IA (30–90) → Glacier Flexible (90–365) → Deep Archive / delete</code>.</p>
+<blockquote>
+<p>Exam cue: <em>"automatically transition older data to cheaper storage"</em> → <strong>lifecycle policy</strong>.</p>
+</blockquote>
+<h2 id="exam-trigger-words-class">Exam trigger words → class</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Question says...</th>
+<th>Class</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"frequently accessed" / default</td>
+<td><strong>S3 Standard</strong></td>
+</tr>
+<tr>
+<td><strong>"unknown / changing / unpredictable"</strong> + <strong>"automatic"</strong> cost optimization</td>
+<td><strong>S3 Intelligent-Tiering</strong></td>
+</tr>
+<tr>
+<td><strong>"infrequently accessed"</strong> but <strong>"available immediately / rapid"</strong></td>
+<td><strong>S3 Standard-IA</strong></td>
+</tr>
+<tr>
+<td>infrequent <strong>+ "can tolerate"</strong> single-AZ loss / "reproducible"</td>
+<td><strong>S3 One Zone-IA</strong></td>
+</tr>
+<tr>
+<td><strong>"archive / long-term / rarely"</strong> + retrieval-time tolerance</td>
+<td><strong>S3 Glacier</strong> (ms→Instant · min–hrs→Flexible · hrs + cheapest + compliance→Deep Archive)</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="worked-examples">Worked examples</h2>
+<ul>
+<li>Profile images read thousands of times/day → <strong>Standard</strong>.</li>
+<li>Patient scans, rarely opened but must load <strong>instantly</strong> → <strong>Standard-IA</strong>.</li>
+<li>Startup, <strong>no idea</strong> which files are hot → <strong>Intelligent-Tiering</strong>.</li>
+<li>Financial records, 7 years, almost never read, hours OK → <strong>Glacier Deep Archive</strong>.</li>
+<li>Backups accessed ~quarterly but needed instantly → <strong>Glacier Instant Retrieval</strong>.</li>
+<li>Easily-recreated thumbnails, infrequent, cost-sensitive → <strong>One Zone-IA</strong>.</li>
+</ul>
+<hr />
+<h2 id="source">Source</h2>
+<p>Taught in the AWS CLF-C02 study session, 2026-06-30 (Module 6 Storage), when the quick analogy wasn't enough — Sahil wanted to understand the <em>why</em> behind every class. Mechanics-level companion to the hub's exam-level Storage section.</p>
+  </div>
+  <footer>Rendered from notes/S3.md &middot; AWS CLF-C02 study workspace</footer>
+</body>
+</html>

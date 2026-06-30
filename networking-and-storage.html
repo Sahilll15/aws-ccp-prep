@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWS CCP — Networking & Storage Cheat Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-body: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+
+    --bg: #f5f1e8;
+    --surface: #fffdf7;
+    --surface2: #efe9da;
+    --surface-elevated: #fffefb;
+    --border: rgba(30, 40, 60, 0.10);
+    --border-bright: rgba(30, 40, 60, 0.20);
+    --text: #20283a;
+    --text-dim: #5f6b80;
+
+    --accent: #1e3a5f;
+    --accent-dim: rgba(30, 58, 95, 0.08);
+    --gold: #9a6b15;
+    --gold-dim: rgba(154, 107, 21, 0.11);
+    --green: #4d7c2f;
+    --green-dim: rgba(77, 124, 47, 0.11);
+    --red: #b3401f;
+    --red-dim: rgba(179, 64, 31, 0.10);
+    --teal: #0e7490;
+    --teal-dim: rgba(14, 116, 137, 0.10);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12161d;
+      --surface: #1a1f29;
+      --surface2: #222937;
+      --surface-elevated: #1f2733;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-bright: rgba(255, 255, 255, 0.17);
+      --text: #e9e6dd;
+      --text-dim: #9aa3b4;
+
+      --accent: #7aa7d6;
+      --accent-dim: rgba(122, 167, 214, 0.14);
+      --gold: #d9af52;
+      --gold-dim: rgba(217, 175, 82, 0.14);
+      --green: #93c167;
+      --green-dim: rgba(147, 193, 103, 0.14);
+      --red: #e08a63;
+      --red-dim: rgba(224, 138, 99, 0.14);
+      --teal: #4cc4d6;
+      --teal-dim: rgba(76, 196, 214, 0.14);
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  .grid > *, .flex > * { min-width: 0; }
+
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 15% 0%, var(--accent-dim) 0%, transparent 45%),
+      radial-gradient(ellipse at 85% 8%, var(--gold-dim) 0%, transparent 40%);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 40px;
+    overflow-wrap: break-word;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .animate { animation: fadeUp 0.45s ease-out both; animation-delay: calc(var(--i, 0) * 0.05s); }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0ms !important; transition-duration: 0.01ms !important; }
+  }
+
+  /* ---------- LAYOUT ---------- */
+  .wrap { max-width: 1320px; margin: 0 auto; display: grid; grid-template-columns: 180px 1fr; gap: 0 48px; }
+  .main { min-width: 0; }
+
+  .toc {
+    position: sticky; top: 24px; align-self: start; grid-row: 1 / -1;
+    padding: 14px 0; max-height: calc(100dvh - 48px); overflow-y: auto;
+  }
+  .toc::-webkit-scrollbar { width: 3px; }
+  .toc::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 2px; }
+  .toc-title {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 2px; color: var(--text-dim); padding: 0 0 10px; margin-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  .toc a {
+    display: block; font-size: 11.5px; color: var(--text-dim); text-decoration: none; padding: 5px 9px;
+    border-radius: 5px; border-left: 2px solid transparent; transition: all 0.15s; line-height: 1.35; margin-bottom: 1px;
+  }
+  .toc a:hover { color: var(--text); background: var(--surface2); }
+  .toc a.active { color: var(--text); border-left-color: var(--gold); background: var(--accent-dim); }
+  .toc a .tm { font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); opacity: 0.7; }
+
+  /* ---------- HERO ---------- */
+  .hero { padding: 8px 0 28px; }
+  .kicker {
+    font-family: var(--font-mono); font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 2.5px; color: var(--gold); margin-bottom: 14px;
+  }
+  h1 { font-family: var(--font-display); font-size: clamp(34px, 5vw, 56px); font-weight: 500; line-height: 1.04; letter-spacing: -0.5px; }
+  h1 em { font-style: italic; color: var(--accent); }
+  .lede { font-size: 17px; color: var(--text-dim); margin-top: 14px; max-width: 60ch; }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-top: 26px; }
+  .kpi {
+    background: var(--surface-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+  .kpi__v { font-family: var(--font-display); font-size: 27px; font-weight: 500; line-height: 1.05; letter-spacing: -0.5px; }
+  .kpi__v small { font-size: 14px; color: var(--text-dim); }
+  .kpi__l { font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.4px; color: var(--text-dim); margin-top: 7px; }
+
+  /* ---------- SECTIONS ---------- */
+  .sec-head { display: flex; align-items: center; gap: 16px; margin: 52px 0 22px; scroll-margin-top: 24px; }
+  .sec-num {
+    font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--gold);
+    border: 1px solid var(--border-bright); border-radius: 9px; padding: 8px 11px; flex-shrink: 0; background: var(--surface);
+  }
+  .sec-kicker { font-family: var(--font-mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.6px; color: var(--text-dim); margin-bottom: 2px; }
+  .sec-head h2 { font-family: var(--font-display); font-size: 27px; font-weight: 500; line-height: 1.1; letter-spacing: -0.3px; }
+
+  p.note { margin: 0 0 18px; color: var(--text-dim); max-width: 72ch; }
+  p.note strong { color: var(--text); font-weight: 600; }
+
+  /* ---------- TABLES ---------- */
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 18px; box-shadow: 0 1px 6px rgba(0,0,0,0.03); }
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table.dt { width: 100%; border-collapse: collapse; font-size: 13.5px; line-height: 1.5; }
+  table.dt thead { position: sticky; top: 0; z-index: 2; }
+  table.dt th {
+    background: var(--surface2); font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); text-align: left;
+    padding: 12px 15px; border-bottom: 2px solid var(--border-bright); white-space: nowrap;
+  }
+  table.dt td { padding: 13px 15px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  table.dt tbody tr:last-child td { border-bottom: none; }
+  table.dt tbody tr:nth-child(even) { background: var(--accent-dim); }
+  table.dt tbody tr { transition: background 0.15s ease; }
+  table.dt tbody tr:hover { background: var(--gold-dim); }
+  table.dt .lead { font-weight: 600; color: var(--text); white-space: nowrap; }
+  table.dt .wide { min-width: 210px; }
+  table.dt small { display: block; color: var(--text-dim); font-size: 11.5px; margin-top: 3px; }
+  code {
+    font-family: var(--font-mono); font-size: 0.86em; background: var(--accent-dim); color: var(--accent);
+    padding: 1px 6px; border-radius: 4px;
+  }
+
+  /* ---------- TAGS / STATUS ---------- */
+  .tag {
+    display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 10.5px; font-weight: 600;
+    padding: 3px 9px; border-radius: 6px; white-space: nowrap; letter-spacing: 0.2px;
+  }
+  .tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .tag--bare::before { display: none; }
+  .t-navy { background: var(--accent-dim); color: var(--accent); }
+  .t-gold { background: var(--gold-dim); color: var(--gold); }
+  .t-green { background: var(--green-dim); color: var(--green); }
+  .t-red { background: var(--red-dim); color: var(--red); }
+  .t-teal { background: var(--teal-dim); color: var(--teal); }
+
+  /* ---------- CALLOUT ---------- */
+  .callout { padding: 15px 19px; border-radius: 10px; border-left: 4px solid var(--cb, var(--accent)); background: var(--cbg, var(--accent-dim)); margin: 18px 0; }
+  .callout--hook { --cb: var(--gold); --cbg: var(--gold-dim); }
+  .callout--trap { --cb: var(--red); --cbg: var(--red-dim); }
+  .callout__t { font-family: var(--font-mono); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--cb, var(--accent)); margin-bottom: 7px; }
+  .callout p { margin: 0; font-size: 14px; }
+  .callout strong { color: var(--text); font-weight: 700; }
+
+  /* ---------- DIFF PANELS ---------- */
+  .diff { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 18px; }
+  .diff > * { min-width: 0; overflow-wrap: break-word; }
+  .diff__h { font-family: var(--font-mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding: 11px 17px; }
+  .diff__h--a { background: var(--teal-dim); color: var(--teal); border-bottom: 2px solid var(--teal); }
+  .diff__h--b { background: var(--gold-dim); color: var(--gold); border-bottom: 2px solid var(--gold); }
+  .diff__b { padding: 16px 17px; background: var(--surface); font-size: 13.5px; line-height: 1.6; }
+  .diff__b ul { list-style: none; }
+  .diff__b li { padding-left: 15px; position: relative; margin-bottom: 7px; }
+  .diff__b li::before { content: '›'; position: absolute; left: 0; color: var(--text-dim); font-weight: 700; }
+  .diff__b li:last-child { margin-bottom: 0; }
+
+  /* ---------- S3 DIAL ---------- */
+  .dial { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px 22px 18px; margin-bottom: 18px; box-shadow: 0 1px 6px rgba(0,0,0,0.03); }
+  .dial__axis { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; color: var(--text-dim); margin-bottom: 9px; letter-spacing: 0.3px; }
+  .dial__track { height: 10px; border-radius: 6px; background: linear-gradient(90deg, var(--red) 0%, var(--gold) 45%, var(--teal) 70%, var(--green) 100%); opacity: 0.85; margin-bottom: 18px; }
+  .dial__steps { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 9px; }
+  .step { background: var(--surface-elevated); border: 1px solid var(--border); border-top: 3px solid var(--sc, var(--accent)); border-radius: 9px; padding: 11px 11px 12px; }
+  .step__n { font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; color: var(--text); line-height: 1.25; margin-bottom: 6px; }
+  .step__d { font-size: 11.5px; color: var(--text-dim); line-height: 1.4; }
+  @media (max-width: 920px) {
+    .dial__steps { grid-template-columns: repeat(2, 1fr); }
+    .dial__track { display: none; }
+    .dial__axis { display: none; }
+  }
+
+  hr.rule { border: none; height: 1px; background: var(--border); margin: 8px 0 0; }
+
+  /* ---------- TOC MOBILE ---------- */
+  @media (max-width: 1000px) {
+    .wrap { grid-template-columns: 1fr; }
+    body { padding: 0 20px 40px; }
+    .toc {
+      position: sticky; top: 0; z-index: 200; max-height: none; display: flex; gap: 4px; align-items: center;
+      overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--bg); border-bottom: 1px solid var(--border);
+      padding: 10px 20px; margin: 0 -20px 8px; grid-row: auto;
+    }
+    .toc::-webkit-scrollbar { display: none; }
+    .toc-title { display: none; }
+    .toc a { white-space: nowrap; flex-shrink: 0; border-left: none; border-bottom: 2px solid transparent; border-radius: 4px 4px 0 0; padding: 6px 10px; }
+    .toc a.active { border-left: none; border-bottom-color: var(--gold); background: var(--surface); }
+    .toc a .tm { display: none; }
+    .hero { padding-top: 22px; }
+    .sec-head { scroll-margin-top: 54px; }
+  }
+  @media (max-width: 680px) {
+    .diff { grid-template-columns: 1fr; }
+    .sec-head h2 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="toc" id="toc">
+    <div class="toc-title">Contents</div>
+    <a href="#s1"><span class="tm">01</span> &nbsp;Connectivity</a>
+    <a href="#s2"><span class="tm">02</span> &nbsp;Firewalls: SG vs NACL</a>
+    <a href="#s3"><span class="tm">03</span> &nbsp;DNS &amp; Edge</a>
+    <a href="#s4"><span class="tm">04</span> &nbsp;Storage Types</a>
+    <a href="#s5"><span class="tm">05</span> &nbsp;S3 Classes Dial</a>
+    <a href="#s6"><span class="tm">06</span> &nbsp;Lifecycle &amp; Transfer</a>
+    <a href="#s7"><span class="tm">07</span> &nbsp;Exam Triggers</a>
+  </nav>
+
+  <div class="main">
+
+    <header class="hero animate" style="--i:0">
+      <div class="kicker">AWS Certified Cloud Practitioner · CLF-C02</div>
+      <h1>Domain 3 — <em>Networking</em> &amp; <em>Storage</em></h1>
+      <p class="lede">A revision sheet for Skill Builder Modules 5 &amp; 6. Memory hooks, exam traps, and trigger words distilled from your vault notes.</p>
+
+      <div class="kpi-row">
+        <div class="kpi"><div class="kpi__v">18 Jul</div><div class="kpi__l">Target exam</div></div>
+        <div class="kpi"><div class="kpi__v">34<small>%</small></div><div class="kpi__l">Domain 3 weight</div></div>
+        <div class="kpi"><div class="kpi__v">M5 · M6</div><div class="kpi__l">Modules covered</div></div>
+        <div class="kpi"><div class="kpi__v">65 Q <small>/ 90m</small></div><div class="kpi__l">Exam format</div></div>
+      </div>
+    </header>
+
+    <!-- ============ S1 CONNECTIVITY ============ -->
+    <div id="s1" class="sec-head animate" style="--i:1">
+      <span class="sec-num">01</span>
+      <div><div class="sec-kicker">Networking · Module 5</div><h2>VPC Connectivity Menu</h2></div>
+    </div>
+    <p class="note">A <strong>VPC</strong> is your isolated private network (CIDR like <code>10.0.0.0/16</code>, <strong>regional</strong>), split into <strong>subnets</strong> (one AZ each; public = has an Internet Gateway route). The single most-tested networking topic is <strong>how traffic gets in and out</strong>.</p>
+
+    <div class="table-wrap animate" style="--i:2">
+      <div class="table-scroll">
+        <table class="dt">
+          <thead><tr><th>Path</th><th class="wide">What it is</th><th>Over internet?</th><th class="wide">Use it for</th></tr></thead>
+          <tbody>
+            <tr><td class="lead">Internet Gateway (IGW)</td><td class="wide">The VPC's door to the <strong>public internet</strong>; public subnets route <code>0.0.0.0/0</code> &rarr; IGW.</td><td><span class="tag t-teal tag--bare">Yes · public</span></td><td class="wide">Public-facing apps, web servers, load balancers.</td></tr>
+            <tr><td class="lead">VPN (via VGW)</td><td class="wide">A <strong>Site-to-Site VPN</strong>: an encrypted IPsec tunnel between on-prem and the VPC. AWS side = <strong>Virtual Private Gateway</strong>, your side = <strong>Customer Gateway</strong>.</td><td><span class="tag t-gold tag--bare">Yes · encrypted</span></td><td class="wide">Quick, cheap hybrid link over the public internet.</td></tr>
+            <tr><td class="lead">Direct Connect (DX)</td><td class="wide">A <strong>dedicated private physical fibre line</strong> to AWS that <strong>bypasses the public internet</strong>.</td><td><span class="tag t-green tag--bare">No · private</span></td><td class="wide">Consistent low latency, high bandwidth, large/sensitive data, compliance.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout callout--hook animate" style="--i:3">
+      <div class="callout__t">Memory hook</div>
+      <p><strong>IGW</strong> = public door &middot; <strong>VPN</strong> = encrypted tunnel over the internet &middot; <strong>Direct Connect</strong> = private dedicated cable, no internet.</p>
+    </div>
+    <div class="callout callout--trap animate" style="--i:4">
+      <div class="callout__t">Exam trap</div>
+      <p><strong>Direct Connect alone is private but NOT encrypted.</strong> Need a dedicated line <em>and</em> encryption? Run a <strong>VPN over Direct Connect</strong>. Also know by name: <strong>Transit Gateway</strong> (hub connecting many VPCs + on-prem) and <strong>VPC Endpoints / PrivateLink</strong> (reach AWS services privately, no internet).</p>
+    </div>
+
+    <!-- ============ S2 SG vs NACL ============ -->
+    <div id="s2" class="sec-head animate" style="--i:0">
+      <span class="sec-num">02</span>
+      <div><div class="sec-kicker">Networking · Module 5</div><h2>Security Groups vs NACLs</h2></div>
+    </div>
+    <p class="note">Packet path inward: <strong>internet &rarr; IGW &rarr; subnet's NACL (border guard) &rarr; instance's Security Group (bouncer) &rarr; EC2.</strong></p>
+
+    <div class="table-wrap animate" style="--i:1">
+      <div class="table-scroll">
+        <table class="dt">
+          <thead><tr><th>&nbsp;</th><th>Security Group</th><th>Network ACL (NACL)</th></tr></thead>
+          <tbody>
+            <tr><td class="lead">Operates at</td><td>Instance level (the ENI)</td><td>Subnet level</td></tr>
+            <tr><td class="lead">State</td><td><span class="tag t-green">Stateful</span> <small>return traffic auto-allowed</small></td><td><span class="tag t-gold">Stateless</span> <small>must allow return traffic explicitly</small></td></tr>
+            <tr><td class="lead">Rule types</td><td><span class="tag t-green tag--bare">Allow only</span> <small>everything else implicitly denied</small></td><td><span class="tag t-red tag--bare">Allow + Deny</span> <small>can explicitly block</small></td></tr>
+            <tr><td class="lead">Evaluation</td><td>All rules evaluated together</td><td>Number order &mdash; <strong>first match wins</strong></td></tr>
+            <tr><td class="lead">Default</td><td>Denies all inbound, allows all outbound</td><td>Default allows all; custom denies all until you add rules</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout callout--hook animate" style="--i:2">
+      <div class="callout__t">Memory hook</div>
+      <p><strong>S</strong>ecurity Group = <strong>S</strong>tateful &middot; NA<strong>C</strong>L = <strong>C</strong>an say no (deny) + has no memory (stateless). Need to <strong>block a specific IP</strong>? &rarr; <strong>NACL</strong> (SGs can't deny).</p>
+    </div>
+
+    <!-- ============ S3 DNS & EDGE ============ -->
+    <div id="s3" class="sec-head animate" style="--i:0">
+      <span class="sec-num">03</span>
+      <div><div class="sec-kicker">Networking · Module 5</div><h2>DNS &amp; Edge Delivery</h2></div>
+    </div>
+    <p class="note"><strong>Amazon Route 53</strong> = AWS's managed <strong>DNS</strong> (names &rarr; IPs) and a <strong>domain registrar</strong>. Routes to AWS resources (ELB, CloudFront, S3) and on-prem, with health checks.</p>
+
+    <div class="table-wrap animate" style="--i:1">
+      <div class="table-scroll">
+        <table class="dt">
+          <thead><tr><th>Route 53 policy</th><th class="wide">Sends traffic by…</th></tr></thead>
+          <tbody>
+            <tr><td class="lead">Simple</td><td class="wide">One record &rarr; one resource.</td></tr>
+            <tr><td class="lead">Weighted</td><td class="wide">A % split across endpoints (A/B testing, canary).</td></tr>
+            <tr><td class="lead">Latency-based</td><td class="wide">The Region with the <strong>lowest latency</strong> for the user.</td></tr>
+            <tr><td class="lead">Geolocation</td><td class="wide">The user's <strong>physical location</strong>.</td></tr>
+            <tr><td class="lead">Failover</td><td class="wide">A <strong>backup</strong> if the primary is unhealthy (disaster recovery).</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="diff animate" style="--i:2">
+      <div class="diff__h diff__h--a">Amazon CloudFront</div>
+      <div class="diff__h diff__h--b">AWS Global Accelerator</div>
+      <div class="diff__b">
+        <ul>
+          <li><strong>CDN</strong> — caches content at <strong>edge locations</strong> near users</li>
+          <li>HTTP/HTTPS web content (static + dynamic)</li>
+          <li>Lower latency + absorbs spikes; DDoS protection with Shield</li>
+        </ul>
+      </div>
+      <div class="diff__b">
+        <ul>
+          <li><strong>No caching</strong> — routes over the <strong>AWS backbone</strong></li>
+          <li>For <strong>TCP/UDP</strong> apps: gaming, IoT, VoIP, APIs</li>
+          <li>Gives <strong>static anycast IPs</strong> + fast failover</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout callout--trap animate" style="--i:3">
+      <div class="callout__t">Exam trap</div>
+      <p><strong>CloudFront caches</strong> at the edge. <strong>Global Accelerator does not cache</strong> — it speeds up non-HTTP traffic and hands you static IPs by routing over AWS's private backbone.</p>
+    </div>
+
+    <!-- ============ S4 STORAGE TYPES ============ -->
+    <div id="s4" class="sec-head animate" style="--i:0">
+      <span class="sec-num">04</span>
+      <div><div class="sec-kicker">Storage · Module 6</div><h2>The 3 Storage Types</h2></div>
+    </div>
+    <p class="note">The master key: there are only <strong>three</strong> types of storage. Every service maps to one — learn three ideas, not twelve names.</p>
+
+    <div class="table-wrap animate" style="--i:1">
+      <div class="table-scroll">
+        <table class="dt">
+          <thead><tr><th>Type</th><th class="wide">What it really is</th><th>Analogy</th><th>AWS service</th></tr></thead>
+          <tbody>
+            <tr><td class="lead">Block</td><td class="wide">Raw disk cut into blocks; OS puts a filesystem on top; attaches to <strong>one</strong> machine.</td><td>A hard drive in one computer</td><td><span class="tag t-navy tag--bare">Amazon EBS</span></td></tr>
+            <tr><td class="lead">File</td><td class="wide">Files in folders over a network protocol (NFS/SMB); <strong>many</strong> machines mount at once.</td><td>A shared team network drive</td><td><span class="tag t-navy tag--bare">EFS</span> <span class="tag t-navy tag--bare">FSx</span></td></tr>
+            <tr><td class="lead">Object</td><td class="wide">Whole objects (data + metadata + ID) in a flat pool, via URL/API; infinite scale.</td><td>A web-accessible valet locker</td><td><span class="tag t-navy tag--bare">Amazon S3</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="diff animate" style="--i:2">
+      <div class="diff__h diff__h--a">EBS — block</div>
+      <div class="diff__h diff__h--b">EFS — file</div>
+      <div class="diff__b">
+        <ul>
+          <li>Attaches to <strong>one</strong> EC2 instance</li>
+          <li>Scope: <strong>one AZ</strong></li>
+          <li>You pick the size</li>
+          <li>Snapshots = point-in-time backups in S3</li>
+        </ul>
+      </div>
+      <div class="diff__b">
+        <ul>
+          <li>Mounted by <strong>many</strong> EC2s at once</li>
+          <li>Scope: <strong>regional</strong> (spans AZs)</li>
+          <li><strong>Auto-scales</strong> elastically</li>
+          <li>FSx = the Windows / specialized variant</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout callout--hook animate" style="--i:3">
+      <div class="callout__t">Memory hook</div>
+      <p>E<strong>B</strong>S = one <strong>B</strong>ox &middot; E<strong>F</strong>S = <strong>F</strong>leet (shared by many). <em>Instance store</em> = ephemeral, lost on stop — don't confuse with EBS.</p>
+    </div>
+
+    <!-- ============ S5 S3 DIAL ============ -->
+    <div id="s5" class="sec-head animate" style="--i:0">
+      <span class="sec-num">05</span>
+      <div><div class="sec-kicker">Storage · Module 6 · most-tested</div><h2>S3 Storage Classes — One Cost Dial</h2></div>
+    </div>
+    <p class="note">All classes share the same <strong>11-nines durability</strong> — they are not safer-vs-riskier. They differ on <strong>storage cost vs retrieval cost/speed vs availability</strong>. Two questions decide everything: <strong>how often will I read it</strong>, and <strong>how fast do I need it back?</strong></p>
+
+    <div class="dial animate" style="--i:1">
+      <div class="dial__axis"><span>&#9650; Hotter &middot; instant &middot; pricier storage</span><span>Colder &middot; slower &middot; cheaper storage &#9660;</span></div>
+      <div class="dial__track"></div>
+      <div class="dial__steps">
+        <div class="step" style="--sc:var(--red)"><div class="step__n">Standard</div><div class="step__d">Frequent access. Free, instant reads. Default.</div></div>
+        <div class="step" style="--sc:var(--gold)"><div class="step__n">Intelligent-Tiering</div><div class="step__d">Unknown pattern — AWS moves objects for you. No retrieval fees.</div></div>
+        <div class="step" style="--sc:var(--gold)"><div class="step__n">Standard-IA</div><div class="step__d">Known-infrequent, instant. Pay per retrieval. 30-day min.</div></div>
+        <div class="step" style="--sc:var(--teal)"><div class="step__n">One Zone-IA</div><div class="step__d">Same, but 1 AZ. Cheaper; lost if AZ dies. Recreatable data.</div></div>
+        <div class="step" style="--sc:var(--teal)"><div class="step__n">Glacier Instant</div><div class="step__d">Archive accessed ~quarterly, still in milliseconds.</div></div>
+        <div class="step" style="--sc:var(--green)"><div class="step__n">Glacier Flexible</div><div class="step__d">Archive; retrieval in minutes to hours.</div></div>
+        <div class="step" style="--sc:var(--green)"><div class="step__n">Deep Archive</div><div class="step__d">Cheapest. 12–48 hr retrieval. Long-term compliance.</div></div>
+      </div>
+    </div>
+
+    <div class="callout callout--trap animate" style="--i:2">
+      <div class="callout__t">The 3 confusions to keep straight</div>
+      <p><strong>Intelligent-Tiering vs Standard-IA:</strong> unknown pattern + hands-off &rarr; Intelligent-Tiering; known-infrequent &rarr; Standard-IA. &nbsp;<strong>One Zone-IA:</strong> trigger is "recreatable / fine if lost," not just "cheapest." &nbsp;<strong>The 3 Glaciers</strong> differ only by retrieval speed (ms / min–hrs / hrs).</p>
+    </div>
+
+    <!-- ============ S6 LIFECYCLE & TRANSFER ============ -->
+    <div id="s6" class="sec-head animate" style="--i:0">
+      <span class="sec-num">06</span>
+      <div><div class="sec-kicker">Storage · Module 6</div><h2>Lifecycle &amp; Moving Big Data</h2></div>
+    </div>
+    <p class="note"><strong>Lifecycle policy</strong> = rules that slide objects <strong>down the dial as they age</strong>, e.g. <code>Standard &rarr; Standard-IA (30d) &rarr; Glacier (90d) &rarr; delete</code>. Exam cue: <em>"automatically move old data to cheaper storage"</em> &rarr; lifecycle policy (a <strong>feature</strong>, not a class).</p>
+
+    <div class="table-wrap animate" style="--i:1">
+      <div class="table-scroll">
+        <table class="dt">
+          <thead><tr><th>Service</th><th class="wide">What it does</th></tr></thead>
+          <tbody>
+            <tr><td class="lead">Storage Gateway</td><td class="wide">Hybrid bridge: on-prem apps keep their protocol, data lives in AWS, hot data cached locally. Types by interface: <strong>File</strong> (S3/FSx) · <strong>Tape</strong> (VTL &rarr; S3+Glacier) · <strong>Volume</strong> (iSCSI &rarr; S3+EBS snapshots).</td></tr>
+            <tr><td class="lead">AWS Backup</td><td class="wide">One central place to back up across many AWS services.</td></tr>
+            <tr><td class="lead">Snow Family</td><td class="wide">Physically <strong>ship</strong> data when the network is too slow: <strong>Snowcone</strong> (portable) &rarr; <strong>Snowball</strong> (suitcase, TB–PB) &rarr; <strong>Snowmobile</strong> (a truck, exabytes).</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="callout callout--hook animate" style="--i:2">
+      <div class="callout__t">Memory hooks</div>
+      <p>Snow family: <strong>cone &lt; ball &lt; mobile = small &lt; medium &lt; gigantic.</strong> &nbsp;Storage Gateway trigger: <em>"keep using the on-prem app but store/back up in AWS"</em> &rarr; Storage Gateway.</p>
+    </div>
+
+    <!-- ============ S7 EXAM TRIGGERS ============ -->
+    <div id="s7" class="sec-head animate" style="--i:0">
+      <span class="sec-num">07</span>
+      <div><div class="sec-kicker">Final-week review</div><h2>Exam Trigger Words</h2></div>
+    </div>
+    <p class="note">Learn the <strong>triggers</strong>, not the lists. When the question says the phrase on the left, the answer is on the right.</p>
+
+    <div class="table-wrap animate" style="--i:1">
+      <div class="table-scroll">
+        <table class="dt">
+          <thead><tr><th class="wide">When the question says…</th><th>Answer</th></tr></thead>
+          <tbody>
+            <tr><td class="wide">"frequently accessed" / default</td><td><span class="tag t-navy tag--bare">S3 Standard</span></td></tr>
+            <tr><td class="wide">"unknown / changing / unpredictable" + "automatic" cost saving</td><td><span class="tag t-gold tag--bare">Intelligent-Tiering</span></td></tr>
+            <tr><td class="wide">"infrequently accessed" but "available immediately"</td><td><span class="tag t-gold tag--bare">Standard-IA</span></td></tr>
+            <tr><td class="wide">infrequent + "can tolerate loss" / "reproducible"</td><td><span class="tag t-teal tag--bare">One Zone-IA</span></td></tr>
+            <tr><td class="wide">"archive / long-term / rarely" + hours OK + cheapest</td><td><span class="tag t-green tag--bare">Glacier Deep Archive</span></td></tr>
+            <tr><td class="wide">"automatically move old data to cheaper storage"</td><td><span class="tag t-navy tag--bare">Lifecycle policy</span></td></tr>
+            <tr><td class="wide">"on-premises" + "store/back up in AWS"</td><td><span class="tag t-navy tag--bare">Storage Gateway</span></td></tr>
+            <tr><td class="wide">dedicated private line, consistent, no internet</td><td><span class="tag t-navy tag--bare">Direct Connect</span></td></tr>
+            <tr><td class="wide">encrypted on-prem &harr; AWS over the internet</td><td><span class="tag t-navy tag--bare">Site-to-Site VPN</span></td></tr>
+            <tr><td class="wide">"block / deny a specific IP" at the subnet</td><td><span class="tag t-navy tag--bare">NACL</span></td></tr>
+            <tr><td class="wide">cache content near users / CDN</td><td><span class="tag t-navy tag--bare">CloudFront</span></td></tr>
+            <tr><td class="wide">"shared file system" for many EC2s</td><td><span class="tag t-navy tag--bare">Amazon EFS</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <hr class="rule" style="margin-top:36px">
+    <p class="note" style="margin-top:18px; font-family:var(--font-mono); font-size:11px; opacity:0.7;">Sourced from your vault: DevOps/AWS-Cloud-Practitioner.md, DevOps/S3.md, DevOps/VPN.md · generated 30 Jun 2026</p>
+
+  </div>
+</div>
+
+<script>
+(function() {
+  const toc = document.getElementById('toc');
+  const links = toc.querySelectorAll('a');
+  const sections = [];
+  links.forEach(link => {
+    const id = link.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el) sections.push({ id, el, link });
+  });
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const match = sections.find(s => s.el === entry.target);
+        if (match) {
+          match.link.classList.add('active');
+          if (window.innerWidth <= 1000) {
+            match.link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          }
+        }
+      }
+    });
+  }, { rootMargin: '-8% 0px -82% 0px' });
+  sections.forEach(s => observer.observe(s.el));
+  links.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const id = link.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); history.replaceState(null, '', '#' + id); }
+    });
+  });
+})();
+</script>
+</body>
+</html>
